@@ -472,6 +472,273 @@ docker image prune
 
 ---
 
+## NPM Build and Development Commands
+
+### Checking NPM Build Status
+
+#### 1. Build Inside Docker Container
+```bash
+# Check if the application is building successfully
+docker-compose logs nextjs-app
+
+# Access the container shell to run npm commands
+docker exec -it cg_portal_feedback-nextjs-app-1 /bin/bash
+
+# Inside the container, you can run:
+npm run build
+npm run start
+npm run dev
+```
+
+#### 2. Local Build Testing (Without Docker)
+```bash
+# Install dependencies locally
+npm install
+
+# Check if build works locally
+npm run build
+
+# Start production server locally
+npm run start
+
+# Start development server locally
+npm run dev
+```
+
+#### 3. Build Status Monitoring
+```bash
+# Monitor build logs in real-time
+docker-compose logs -f nextjs-app
+
+# Check container resource usage
+docker stats
+
+# View build errors specifically
+docker-compose logs nextjs-app | grep -i error
+docker-compose logs nextjs-app | grep -i warning
+```
+
+#### 4. Debugging Build Issues
+
+**Step 1: Check Container Status**
+```bash
+# See if container is running
+docker-compose ps
+
+# If container is not running, check exit code
+docker-compose ps -a
+```
+
+**Step 2: Examine Build Logs**
+```bash
+# Full logs from container start
+docker-compose logs nextjs-app
+
+# Last 50 lines of logs
+docker-compose logs --tail=50 nextjs-app
+
+# Follow logs in real-time
+docker-compose logs -f nextjs-app
+```
+
+**Step 3: Interactive Debugging**
+```bash
+# Access container shell
+docker exec -it cg_portal_feedback-nextjs-app-1 /bin/bash
+
+# Check Node.js version
+node --version
+npm --version
+
+# Check package.json scripts
+cat package.json | grep -A 10 "scripts"
+
+# Try building manually
+npm run build
+
+# Check if dependencies are installed
+ls -la node_modules/
+npm list --depth=0
+```
+
+**Step 4: Rebuild Container**
+```bash
+# Stop container
+docker-compose stop nextjs-app
+
+# Remove container
+docker-compose rm nextjs-app
+
+# Rebuild with no cache
+docker-compose build --no-cache nextjs-app
+
+# Start again
+docker-compose up -d nextjs-app
+```
+
+#### 5. Common Build Issues and Solutions
+
+**Issue: "Module not found" errors**
+```bash
+# Solution 1: Clear npm cache and reinstall
+docker exec -it cg_portal_feedback-nextjs-app-1 /bin/bash
+rm -rf node_modules package-lock.json
+npm cache clean --force
+npm install
+
+# Solution 2: Rebuild container
+docker-compose down
+docker-compose build --no-cache
+docker-compose up -d
+```
+
+**Issue: "Out of memory" during build**
+```bash
+# Solution: Increase Docker memory limit
+# In Docker Desktop: Settings > Resources > Memory > Increase to 4GB+
+
+# Or set Node.js memory limit
+docker-compose exec nextjs-app node --max-old-space-size=4096 node_modules/.bin/next build
+```
+
+**Issue: "Permission denied" errors**
+```bash
+# Solution: Fix file permissions
+docker exec -it cg_portal_feedback-nextjs-app-1 /bin/bash
+chown -R node:node /app
+chmod -R 755 /app
+```
+
+#### 6. Production Build Verification
+
+**Check Build Output**
+```bash
+# Access container and check build files
+docker exec -it cg_portal_feedback-nextjs-app-1 /bin/bash
+ls -la .next/
+ls -la .next/static/
+
+# Check build size
+du -sh .next/
+
+# Verify static files
+ls -la public/
+```
+
+**Performance Testing**
+```bash
+# Check build time
+time docker-compose build nextjs-app
+
+# Check startup time
+time docker-compose up -d nextjs-app
+
+# Monitor memory usage
+docker stats cg_portal_feedback-nextjs-app-1
+```
+
+#### 7. Development vs Production Builds
+
+**Development Build (Hot Reload)**
+```bash
+# Start in development mode
+docker-compose -f docker-compose.dev.yml up -d
+
+# Check development logs
+docker-compose -f docker-compose.dev.yml logs -f nextjs-app
+
+# Development features:
+# - Hot reload enabled
+# - Source maps included
+# - Debug information available
+# - Faster compilation
+```
+
+**Production Build (Optimized)**
+```bash
+# Start in production mode
+docker-compose up -d
+
+# Production features:
+# - Code minification
+# - Tree shaking
+# - Static optimization
+# - Smaller bundle size
+```
+
+#### 8. Build Environment Variables
+
+**Check Environment Variables**
+```bash
+# View all environment variables in container
+docker exec -it cg_portal_feedback-nextjs-app-1 env
+
+# Check specific Next.js variables
+docker exec -it cg_portal_feedback-nextjs-app-1 env | grep NEXT
+
+# Check Node environment
+docker exec -it cg_portal_feedback-nextjs-app-1 echo $NODE_ENV
+```
+
+#### 9. Package Management
+
+**Check Dependencies**
+```bash
+# List installed packages
+docker exec -it cg_portal_feedback-nextjs-app-1 npm list
+
+# Check for outdated packages
+docker exec -it cg_portal_feedback-nextjs-app-1 npm outdated
+
+# Check for security vulnerabilities
+docker exec -it cg_portal_feedback-nextjs-app-1 npm audit
+
+# Fix vulnerabilities
+docker exec -it cg_portal_feedback-nextjs-app-1 npm audit fix
+```
+
+**Add New Dependencies**
+```bash
+# Install new package
+docker exec -it cg_portal_feedback-nextjs-app-1 npm install package-name
+
+# Install dev dependency
+docker exec -it cg_portal_feedback-nextjs-app-1 npm install --save-dev package-name
+
+# After adding dependencies, rebuild
+docker-compose restart nextjs-app
+```
+
+#### 10. Quick Build Health Check
+
+**One-Command Health Check**
+```bash
+# Complete health check script
+echo "=== Docker Containers Status ===" && \
+docker-compose ps && \
+echo "=== Application Logs (Last 10 lines) ===" && \
+docker-compose logs --tail=10 nextjs-app && \
+echo "=== Application Response Check ===" && \
+curl -s -o /dev/null -w "%{http_code}" http://localhost:3000 && \
+echo " (HTTP Status)" && \
+echo "=== Database Connection Check ===" && \
+curl -s -o /dev/null -w "%{http_code}" http://localhost:8081 && \
+echo " (Database UI Status)"
+```
+
+**Windows PowerShell Version**
+```powershell
+# Health check for Windows users
+Write-Host "=== Docker Containers Status ===" -ForegroundColor Green
+docker-compose ps
+Write-Host "=== Application Logs ===" -ForegroundColor Green  
+docker-compose logs --tail=10 nextjs-app
+Write-Host "=== Testing Application Response ===" -ForegroundColor Green
+Invoke-WebRequest -Uri "http://localhost:3000" -UseBasicParsing | Select-Object StatusCode
+```
+
+---
+
 ## Conclusion
 
 This Docker setup provides a complete, production-ready environment for the CG Portal Feedback System. The containerized approach ensures:

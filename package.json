@@ -11,8 +11,7 @@
     "docker:prod": "docker-compose up -d",
     "docker:prod:stop": "docker-compose down",
     "docker:build": "docker-compose build",
-    "docker:logs": "docker-compose logs -f",
-    "preinstall": "npx npm-force-resolutions"
+    "docker:logs": "docker-compose logs -f"
   },
   "resolutions": {
     "date-fns": "3.6.0"
@@ -57,7 +56,7 @@
     "mongodb": "^6.3.0",
     "next": "^15.4.2",
     "next-themes": "^0.4.4",
-   "react": "^18.2.0",
+    "react": "^18.2.0",
     "react-day-picker": "8.10.1",
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.54.1",
@@ -75,7 +74,6 @@
     "@types/react-dom": "^18.2.0",
     "postcss": "^8.5",
     "tailwindcss": "^3.4.17",
-    "typescript": "^5",
-    "npm-force-resolutions": "^0.0.10"
+    "typescript": "^5"
   }
 }
