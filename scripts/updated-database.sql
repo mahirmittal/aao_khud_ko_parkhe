@@ -3,8 +3,8 @@ CREATE DATABASE IF NOT EXISTS chhattisgarh_call_center;
 
 USE chhattisgarh_call_center;
 
--- Create executives table for call center staff
-CREATE TABLE IF NOT EXISTS executives (
+-- Create Executives table for call center staff
+CREATE TABLE IF NOT EXISTS Executives (
     id INT AUTO_INCREMENT PRIMARY KEY,
     employee_id VARCHAR(20) UNIQUE NOT NULL,
     full_name VARCHAR(100) NOT NULL,
@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS feedback (
     INDEX idx_submitted_by (submitted_by),
     INDEX idx_status (status),
     INDEX idx_submitted_at (submitted_at),
-    FOREIGN KEY (submitted_by) REFERENCES executives(employee_id)
+    FOREIGN KEY (submitted_by) REFERENCES Executives(employee_id)
 );
 
 -- Create admin users table for higher authorities
@@ -51,8 +51,8 @@ CREATE TABLE IF NOT EXISTS admin_users (
     last_login TIMESTAMP NULL
 );
 
--- Insert sample executives
-INSERT INTO executives (employee_id, full_name, password_hash, department) VALUES
+-- Insert sample Executives
+INSERT INTO Executives (employee_id, full_name, password_hash, department) VALUES
 ('EXE001', 'Rajesh Sharma', '$2b$10$rQZ8kHWKQVnqVY8kHWKQVnqVY8kHWKQVnqVY8kHWKQVnqVY8kHWKQ', 'Call Center'),
 ('EXE002', 'Priya Patel', '$2b$10$rQZ8kHWKQVnqVY8kHWKQVnqVY8kHWKQVnqVY8kHWKQVnqVY8kHWKQ', 'Call Center'),
 ('EXE003', 'Amit Kumar', '$2b$10$rQZ8kHWKQVnqVY8kHWKQVnqVY8kHWKQVnqVY8kHWKQVnqVY8kHWKQ', 'Call Center')
@@ -67,13 +67,13 @@ ON DUPLICATE KEY UPDATE username = username;
 CREATE TABLE IF NOT EXISTS call_statistics (
     id INT AUTO_INCREMENT PRIMARY KEY,
     date DATE NOT NULL,
-    executive_id VARCHAR(20) NOT NULL,
+    Executive_id VARCHAR(20) NOT NULL,
     total_calls INT DEFAULT 0,
     satisfied_calls INT DEFAULT 0,
     not_satisfied_calls INT DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE KEY unique_date_executive (date, executive_id),
-    FOREIGN KEY (executive_id) REFERENCES executives(employee_id)
+    UNIQUE KEY unique_date_Executive (date, Executive_id),
+    FOREIGN KEY (Executive_id) REFERENCES Executives(employee_id)
 );
 
 -- Sample feedback data

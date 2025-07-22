@@ -19,7 +19,7 @@ const translations = {
     // Header
     "header.title": "Call Center Feedback System",
     "header.subtitle": "Government of Chhattisgarh - Internal Portal",
-    "header.executiveLogin": "Executive Login",
+    "header.ExecutiveLogin": "Executive Login",
     "header.adminLogin": "Admin Login",
 
     // Home Page
@@ -40,12 +40,12 @@ const translations = {
     "home.howToUse": "How to Use",
     "home.forExecutives": "For Call Executives",
     "home.forAdmins": "For Administrators",
-    "home.step1Exec": "Login with your executive credentials",
+    "home.step1Exec": "Login with your Executive credentials",
     "home.step2Exec": "After resolving a citizen's query, record their feedback",
     "home.step3Exec": "Enter call ID, citizen mobile, and satisfaction level",
     "home.step4Exec": "Submit feedback for administrative review",
     "home.step1Admin": "Access admin dashboard with supervisor credentials",
-    "home.step2Admin": "Review all feedback submitted by call executives",
+    "home.step2Admin": "Review all feedback submitted by call Executives",
     "home.step3Admin": "Monitor satisfaction levels and service quality",
     "home.step4Admin": "Update feedback status and take corrective actions",
     "home.govChhattisgarh": "Government of Chhattisgarh",
@@ -55,8 +55,8 @@ const translations = {
 
     // Login Pages
     "login.backToHome": "Back to Home",
-    "login.executiveTitle": "Executive Login",
-    "login.executiveDesc": "Login to record citizen feedback after resolving calls",
+    "login.ExecutiveTitle": "Executive Login",
+    "login.ExecutiveDesc": "Login to record citizen feedback after resolving calls",
     "login.adminTitle": "Admin Login",
     "login.adminDesc": "Access the administrative dashboard",
     "login.employeeId": "Employee ID",
@@ -112,7 +112,7 @@ const translations = {
     "admin.notSatisfied": "Not Satisfied",
     "admin.pending": "Pending",
     "admin.managementTitle": "Call Feedback Management",
-    "admin.managementDesc": "Review and manage feedback recorded by call executives",
+    "admin.managementDesc": "Review and manage feedback recorded by call Executives",
     "admin.search": "Search",
     "admin.searchPlaceholder": "Search by Call ID, Mobile, or Description...",
     "admin.filterStatus": "Filter by Status",
@@ -143,7 +143,7 @@ const translations = {
     // Header
     "header.title": "कॉल सेंटर फीडबैक सिस्टम",
     "header.subtitle": "छत्तीसगढ़ सरकार - आंतरिक पोर्टल",
-    "header.executiveLogin": "कार्यकारी लॉगिन",
+    "header.ExecutiveLogin": "कार्यकारी लॉगिन",
     "header.adminLogin": "प्रशासक लॉगिन",
 
     // Home Page
@@ -179,8 +179,8 @@ const translations = {
 
     // Login Pages
     "login.backToHome": "होम पर वापस",
-    "login.executiveTitle": "कार्यकारी लॉगिन",
-    "login.executiveDesc": "कॉल हल करने के बाद नागरिक फीडबैक रिकॉर्ड करने के लिए लॉगिन करें",
+    "login.ExecutiveTitle": "कार्यकारी लॉगिन",
+    "login.ExecutiveDesc": "कॉल हल करने के बाद नागरिक फीडबैक रिकॉर्ड करने के लिए लॉगिन करें",
     "login.adminTitle": "प्रशासक लॉगिन",
     "login.adminDesc": "प्रशासनिक डैशबोर्ड तक पहुंचें",
     "login.employeeId": "कर्मचारी आईडी",

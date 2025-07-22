@@ -45,7 +45,7 @@ The feedback submission system is **fully implemented and working** with proper 
   submittedBy: {
     type: String,
     required: true,
-    description: "Username of executive who submitted"
+    description: "Username of Executive who submitted"
   },
   submittedAt: {
     type: Date,
@@ -189,7 +189,7 @@ The feedback submission system is **fully implemented and working** with proper 
 
 ## Security Features
 
-- ✅ **Authentication Required**: Only logged-in executives can submit
+- ✅ **Authentication Required**: Only logged-in Executives can submit
 - ✅ **Input Validation**: Multiple layers of validation
 - ✅ **Data Sanitization**: Input trimming and type conversion
 - ✅ **Schema Enforcement**: Database-level validation

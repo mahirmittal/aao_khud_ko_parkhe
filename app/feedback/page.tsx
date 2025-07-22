@@ -23,8 +23,8 @@ export default function FeedbackPage() {
   const [satisfaction, setSatisfaction] = useState("")
   const [description, setDescription] = useState("")
   const [loading, setLoading] = useState(false)
-  const [executiveUsername, setExecutiveUsername] = useState("")
-  const [executiveType, setExecutiveType] = useState("")
+  const [ExecutiveUsername, setExecutiveUsername] = useState("")
+  const [ExecutiveType, setExecutiveType] = useState("")
   const router = useRouter()
 
   useEffect(() => {
@@ -33,7 +33,7 @@ export default function FeedbackPage() {
     const userType = localStorage.getItem("executiveType")
 
     if (!isLoggedIn) {
-      router.push("/login")
+      window.location.href = "/"
       return
     }
 
@@ -50,7 +50,7 @@ export default function FeedbackPage() {
     localStorage.removeItem("executiveUsername")
     localStorage.removeItem("executiveType")
     localStorage.removeItem("executiveId")
-    router.push("/")
+    window.location.href = "/"
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -89,7 +89,7 @@ export default function FeedbackPage() {
       queryType: queryType.trim(),
       satisfaction,
       description: description.trim(),
-      submittedBy: executiveUsername,
+      submittedBy: ExecutiveUsername,
       submittedAt: new Date().toISOString(),
       status: satisfaction === "satisfied" ? "resolved" : "pending",
     }
@@ -149,7 +149,7 @@ export default function FeedbackPage() {
               <div className="flex items-center space-x-2 bg-blue-100 px-3 py-2 rounded-lg">
                 <Shield className="w-4 h-4 text-blue-600" />
                 <span className="text-sm font-medium text-blue-800">
-                  {t("feedback.welcome")} {executiveUsername} ({executiveType})
+                  {t("feedback.welcome")} {ExecutiveUsername} ({ExecutiveType})
                 </span>
               </div>
               <Button variant="outline" onClick={handleLogout} className="bg-white">

@@ -599,7 +599,7 @@ aws cloudwatch put-metric-alarm \
   --statistic Average \
   --period 300 \
   --threshold 80 \
-  --comparison-operator GreaterThanThreshold \
+  --comparison-Executive GreaterThanThreshold \
   --evaluation-periods 2
 ```
 

@@ -28,7 +28,7 @@ This project uses **MongoDB** as the primary database with schema validation to 
   type: {
     type: String,
     required: true,
-    enum: ["admin", "executive", "manager", "operator"]
+    enum: ["admin", "Executive", "manager", "Executive"]
   },
   active: {
     type: Boolean,

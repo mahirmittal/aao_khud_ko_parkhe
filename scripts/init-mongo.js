@@ -86,8 +86,8 @@ db.createCollection('users', {
         },
         type: {
           bsonType: "string",
-          enum: ["admin", "executive", "manager", "operator"],
-          description: "must be one of: admin, executive, manager, operator"
+          enum: ["admin", "Executive", "manager", "Executive"],
+          description: "must be one of: admin, Executive, manager, Executive"
         },
         active: {
           bsonType: "bool",
@@ -210,17 +210,17 @@ try {
       updatedAt: new Date()
     },
     {
-      username: "executive1", 
+      username: "Executive1",
       password: "exec123",
-      type: "executive",
+      type: "Executive",
       active: true,
       createdAt: new Date(),
       updatedAt: new Date()
     },
     {
-      username: "operator1",
+      username: "Executive1",
       password: "op123",
-      type: "operator", 
+      type: "Executive",
       active: false,
       createdAt: new Date(),
       updatedAt: new Date()
@@ -235,6 +235,6 @@ print('MongoDB initialization completed successfully!');
 print('Database: cg_portal_feedback');
 print('Collections created with schema validation:');
 print('- feedbacks (with validation)');
-print('- users (with validation)'); 
+print('- users (with validation)');
 print('- adminC (for admin authentication)');
 print('Sample data inserted: 3 feedbacks, 1 admin, 3 sample users');

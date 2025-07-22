@@ -1,16 +1,70 @@
 "use client"
 
 import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Phone, Users, User, Lock, ChevronRight } from "lucide-react"
+import { Phone, Users, User, Lock, ChevronRight, Shield } from "lucide-react"
 import { LanguageSwitcher } from "@/components/LanguageSwitcher"
 import { useLanguage } from "@/contexts/LanguageContext"
 
 export default function HomePage() {
   const { t } = useLanguage()
+  const router = useRouter()
+  const [userType, setUserType] = useState("executive")
+  const [username, setUsername] = useState("")
+  const [password, setPassword] = useState("")
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState("")
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setError("")
+
+    if (!username || !password) {
+      setError("Please enter both username and password")
+      return
+    }
+
+    setLoading(true)
+
+    try {
+      const apiEndpoint = userType === 'executive' ? '/api/executive/login' : '/api/admin/login'
+      const response = await fetch(apiEndpoint.toLowerCase(), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, password }),
+      })
+
+      const data = await response.json()
+
+      if (response.ok && data.success) {
+        if (userType === 'executive') {
+          localStorage.setItem("executiveLoggedIn", "true")
+          localStorage.setItem("executiveUsername", username)
+          localStorage.setItem("executiveType", data.user.type)
+          localStorage.setItem("executiveId", data.user.id)
+          router.push("/feedback")
+        } else {
+          localStorage.setItem("adminLoggedIn", "true")
+          localStorage.setItem("adminUsername", username)
+          localStorage.setItem("adminUserId", data.user.id)
+          router.push("/admin/dashboard")
+        }
+      } else {
+        setError(data.message || "Invalid credentials")
+      }
+    } catch (err) {
+      setError("An error occurred during login")
+    } finally {
+      setLoading(false)
+    }
+  }
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -129,43 +183,90 @@ export default function HomePage() {
 
           {/* Center Content */}
           <div className="col-span-6">
-            <div className="bg-gradient-to-r from-green-600 via-blue-600 to-blue-800 rounded-lg p-8 text-white mb-6">
-              <div className="text-center">
+            <div className="">
+              {/* <div className="text-center">
                 <h2 className="text-4xl font-bold mb-2">Chhattisgarh</h2>
                 <h3 className="text-3xl font-bold text-yellow-300 mb-4">full of Surprises</h3>
                 <p className="text-lg mb-2">Welcome to the official portal</p>
                 <p className="text-sm opacity-90">Access government services, information, and resources</p>
-              </div>
+              </div> */}
             </div>
 
-            {/* Call Center System Cards */}
-            <div className="grid grid-cols-2 gap-4 mb-6">
-              <Card className="text-center hover:shadow-lg transition-shadow">
-                <CardHeader>
-                  <Phone className="w-12 h-12 mx-auto text-blue-600 mb-2" />
-                  <CardTitle className="text-lg">{t("home.callManagement")}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <CardDescription>{t("home.callManagementDesc")}</CardDescription>
-                  <Button className="mt-3 w-full" asChild>
-                    <Link href="/login">{t("home.startRecording")}</Link>
+            {/* Secure Login Portal */}
+            <Card className="mb-6">
+              <CardHeader className="bg-gradient-to-r from-gray-700 to-gray-800 text-white text-center">
+                <CardTitle className="text-lg">Secure Login Portal</CardTitle>
+                <CardDescription className="text-gray-300">Government Officials & Citizens</CardDescription>
+              </CardHeader>
+              <CardContent className="p-6">
+                <form className="space-y-4" onSubmit={handleLogin}>
+                  <div>
+                    <Label htmlFor="userType" className="text-sm font-medium">
+                      Login As
+                    </Label>
+                    <div className="relative mt-1">
+                      <Shield className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+                      <select
+                        id="userType"
+                        value={userType}
+                        onChange={(e) => setUserType(e.target.value)}
+                        className="w-full pl-10 pr-4 py-2 border rounded-md focus:ring-2 focus:ring-gray-400 focus:border-transparent"
+                      >
+                        <option value="executive">Executive</option>
+                        <option value="admin">Administrator</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div>
+                    <Label htmlFor="username" className="text-sm font-medium">
+                      Username / Email ID
+                    </Label>
+                    <div className="relative mt-1">
+                      <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                      <Input
+                        id="username"
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                        placeholder="Enter your username"
+                        className="pl-10"
+                        required
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <Label htmlFor="password" className="text-sm font-medium">
+                      Password
+                    </Label>
+                    <div className="relative mt-1">
+                      <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                      <Input
+                        id="password"
+                        type="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        placeholder="Enter your password"
+                        className="pl-10"
+                        required
+                      />
+                    </div>
+                  </div>
+                  {error && (
+                    <div className="text-sm text-red-600 text-center">
+                      {error}
+                    </div>
+                  )}
+                  <Button type="submit" className="w-full bg-gray-700 hover:bg-gray-800" disabled={loading}>
+                    {loading ? "Please wait..." : "Secure Login"}
                   </Button>
-                </CardContent>
-              </Card>
-
-              <Card className="text-center hover:shadow-lg transition-shadow">
-                <CardHeader>
-                  <Users className="w-12 h-12 mx-auto text-green-600 mb-2" />
-                  <CardTitle className="text-lg">{t("home.adminOversight")}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <CardDescription>{t("home.adminOversightDesc")}</CardDescription>
-                  <Button className="mt-3 w-full bg-transparent" variant="outline" asChild>
-                    <Link href="/admin/login">{t("home.adminDashboard")}</Link>
-                  </Button>
-                </CardContent>
-              </Card>
-            </div>
+                </form>
+                <div className="mt-4 text-center">
+                  <Link href="#" className="text-sm text-blue-600 hover:underline">
+                    Forgot Password?
+                  </Link>
+                </div>
+                <div className="mt-4 text-center text-xs text-gray-500">For technical support: 0771-2234567</div>
+              </CardContent>
+            </Card>
 
             {/* How to Use Section */}
             <Card>
@@ -225,50 +326,30 @@ export default function HomePage() {
             </Card>
           </div>
 
-          {/* Right Sidebar - Login Portal */}
+          {/* Right Sidebar - Additional Information */}
           <div className="col-span-3">
             <Card className="mb-6">
-              <CardHeader className="bg-gradient-to-r from-gray-700 to-gray-800 text-white text-center">
-                <CardTitle className="text-lg">Secure Login Portal</CardTitle>
-                <CardDescription className="text-gray-300">Government Officials & Citizens</CardDescription>
+              <CardHeader className="bg-gradient-to-r from-blue-600 to-blue-800 text-white text-center">
+                <CardTitle className="text-lg">Important Information</CardTitle>
               </CardHeader>
-              <CardContent className="p-6">
-                <form className="space-y-4">
-                  <div>
-                    <Label htmlFor="username" className="text-sm font-medium">
-                      Username / Email ID
-                    </Label>
-                    <div className="relative mt-1">
-                      <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                      <Input id="username" placeholder="Enter your username" className="pl-10" />
-                    </div>
+              <CardContent className="p-4">
+                <div className="space-y-4">
+                  <div className="border-l-4 border-blue-500 pl-3">
+                    <h4 className="font-semibold">Helpline Numbers</h4>
+                    <p className="text-sm text-gray-600">Emergency: 112</p>
+                    <p className="text-sm text-gray-600">Police: 100</p>
+                    <p className="text-sm text-gray-600">Ambulance: 108</p>
                   </div>
-                  <div>
-                    <Label htmlFor="password" className="text-sm font-medium">
-                      Password
-                    </Label>
-                    <div className="relative mt-1">
-                      <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                      <Input id="password" type="password" placeholder="Enter your password" className="pl-10" />
-                    </div>
+                  <div className="border-l-4 border-green-500 pl-3">
+                    <h4 className="font-semibold">Working Hours</h4>
+                    <p className="text-sm text-gray-600">Mon-Fri: 10:00 AM - 5:30 PM</p>
+                    <p className="text-sm text-gray-600">Sat: 10:00 AM - 2:00 PM</p>
                   </div>
-                  <Button className="w-full bg-gray-700 hover:bg-gray-800">Secure Login</Button>
-                </form>
-                <div className="mt-4 text-center">
-                  <Link href="#" className="text-sm text-blue-600 hover:underline">
-                    Forgot Password?
-                  </Link>
-                </div>
-                <div className="mt-4 text-center text-xs text-gray-500">For technical support: 0771-2234567</div>
-
-                {/* Quick Access Buttons */}
-                <div className="mt-6 space-y-2">
-                  <Button variant="outline" className="w-full bg-transparent" asChild>
-                    <Link href="/login">Executive Login</Link>
-                  </Button>
-                  <Button variant="outline" className="w-full bg-transparent" asChild>
-                    <Link href="/admin/login">Admin Login</Link>
-                  </Button>
+                  <div className="border-l-4 border-orange-500 pl-3">
+                    <h4 className="font-semibold">Contact Us</h4>
+                    <p className="text-sm text-gray-600">Email: support@cg.gov.in</p>
+                    <p className="text-sm text-gray-600">Phone: 0771-2234567</p>
+                  </div>
                 </div>
               </CardContent>
             </Card>

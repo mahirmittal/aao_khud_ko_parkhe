@@ -10,7 +10,7 @@ Successfully implemented a complete user management system for the admin dashboa
 - Each user has the following fields:
   - `username` (string, unique)
   - `password` (string, plain text as requested)
-  - `type` (string: admin, executive, manager, operator)
+  - `type` (string: admin, Executive, manager, Executive)
   - `active` (boolean: true/false)
   - `createdAt` (timestamp)
   - `updatedAt` (timestamp)
@@ -35,7 +35,7 @@ Successfully implemented a complete user management system for the admin dashboa
 - Dialog form with fields for:
   - Username (required, must be unique)
   - Password (required)
-  - Type (dropdown: admin, executive, manager, operator)
+  - Type (dropdown: admin, Executive, manager, Executive)
   - Active status (checkbox)
 - Form validation and error handling
 - Success/error messages

@@ -16,8 +16,11 @@ export async function POST(request: NextRequest) {
     const db = await getDb()
     const usersCollection = db.collection('users')
 
-    // Find user by username from the users collection (created by admin)
-    const user = await usersCollection.findOne({ username })
+    // Find user by username from the users collection
+    const user = await usersCollection.findOne({
+      username,
+      type: 'executive'  // Only allow executive type users
+    })
 
     if (!user) {
       return NextResponse.json(
@@ -26,8 +29,8 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Check if user is active
-    if (!user.active) {
+    // Check if user is active (if active field exists)
+    if (user.active === false) {
       return NextResponse.json(
         { error: 'Account is inactive. Please contact administrator.' },
         { status: 401 }
@@ -42,19 +45,12 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Check if user type is allowed for executive login (executive, manager, operator)
-    const allowedTypes = ['executive', 'manager', 'operator']
-    if (!allowedTypes.includes(user.type)) {
-      return NextResponse.json(
-        { error: 'Access denied. Admin users cannot login here.' },
-        { status: 403 }
-      )
-    }
+    // Executive type check already done in the query above
 
     // Authentication successful
     return NextResponse.json(
-      { 
-        success: true, 
+      {
+        success: true,
         message: 'Login successful',
         user: {
           username: user.username,
@@ -65,6 +61,7 @@ export async function POST(request: NextRequest) {
       },
       { status: 200 }
     )
+    console.log("Login successful")
 
   } catch (error) {
     console.error('Executive login error:', error)

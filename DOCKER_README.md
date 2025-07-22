@@ -173,7 +173,7 @@ docker-compose ps
 The database is automatically initialized with:
 - ✅ Schema validation for all collections
 - ✅ Default admin user (admin/admin1234)
-- ✅ Sample executive users
+- ✅ Sample Executive users
 - ✅ Sample feedback data
 - ✅ Proper indexes for performance
 
@@ -198,7 +198,7 @@ The database is automatically initialized with:
 - **Purpose**: Main web application (frontend + backend APIs)
 - **Port**: 3000
 - **URL**: http://localhost:3000
-- **Features**: Admin dashboard, executive portal, feedback system
+- **Features**: Admin dashboard, Executive portal, feedback system
 
 ---
 
@@ -206,7 +206,7 @@ The database is automatically initialized with:
 
 ### 1. Main Application (http://localhost:3000)
 - **Home Page**: Welcome screen with navigation
-- **Executive Login**: `/login` - For call center executives
+- **Executive Login**: `/login` - For call center Executives
 - **Admin Login**: `/admin/login` - For administrators
 - **Feedback Form**: `/feedback` - For recording citizen feedback
 
