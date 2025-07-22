@@ -28,9 +28,9 @@ export default function FeedbackPage() {
   const router = useRouter()
 
   useEffect(() => {
-    const isLoggedIn = localStorage.getItem("executiveLoggedIn")
-    const username = localStorage.getItem("executiveUsername")
-    const userType = localStorage.getItem("executiveType")
+    const isLoggedIn = localStorage.getItem("executive1LoggedIn")
+    const username = localStorage.getItem("executive1Username")
+    const userType = localStorage.getItem("executive1Type")
 
     if (!isLoggedIn) {
       window.location.href = "/"
@@ -46,10 +46,10 @@ export default function FeedbackPage() {
   }, [router])
 
   const handleLogout = () => {
-    localStorage.removeItem("executiveLoggedIn")
-    localStorage.removeItem("executiveUsername")
-    localStorage.removeItem("executiveType")
-    localStorage.removeItem("executiveId")
+    localStorage.removeItem("executive1LoggedIn")
+    localStorage.removeItem("executive1Username")
+    localStorage.removeItem("executive1Type")
+    localStorage.removeItem("executive1Id")
     window.location.href = "/"
   }
 

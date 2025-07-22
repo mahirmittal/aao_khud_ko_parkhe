@@ -14,7 +14,7 @@ import { useLanguage } from "@/contexts/LanguageContext"
 export default function HomePage() {
   const { t } = useLanguage()
   const router = useRouter()
-  const [userType, setUserType] = useState("executive")
+  const [userType, setUserType] = useState("executive1")
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
   const [loading, setLoading] = useState(false)
@@ -32,7 +32,7 @@ export default function HomePage() {
     setLoading(true)
 
     try {
-      const apiEndpoint = userType === 'executive' ? '/api/executive/login' : '/api/admin/login'
+      const apiEndpoint = userType === 'executive1' ? '/api/executive1/login' : '/api/admin/login'
       const response = await fetch(apiEndpoint.toLowerCase(), {
         method: 'POST',
         headers: {
@@ -44,11 +44,11 @@ export default function HomePage() {
       const data = await response.json()
 
       if (response.ok && data.success) {
-        if (userType === 'executive') {
-          localStorage.setItem("executiveLoggedIn", "true")
-          localStorage.setItem("executiveUsername", username)
-          localStorage.setItem("executiveType", data.user.type)
-          localStorage.setItem("executiveId", data.user.id)
+        if (userType === 'executive1') {
+          localStorage.setItem("executive1LoggedIn", "true")
+          localStorage.setItem("executive1Username", username)
+          localStorage.setItem("executive1Type", data.user.type)
+          localStorage.setItem("executive1Id", data.user.id)
           router.push("/feedback")
         } else {
           localStorage.setItem("adminLoggedIn", "true")
@@ -106,7 +106,7 @@ export default function HomePage() {
               { name: "Shri Vishnu Deo Sai", title: "Hon. Chief Minister, C.G." },
               { name: "Dr. Gaurav Kumar Singh", title: "Collector, Raipur" },
               { name: "Shri Vishwadeep", title: "Commissioner, Raipur" },
-              { name: "Kumar Biswranjan", title: "Chief Executive Officer Panchayat" },
+              { name: "Kumar Biswranjan", title: "Chief Executive1 Officer Panchayat" },
             ].map((official, index) => (
               <div key={index} className="text-center">
                 <div className="w-16 h-16 bg-white rounded-full mb-2 mx-auto flex items-center justify-center">
@@ -212,7 +212,7 @@ export default function HomePage() {
                         onChange={(e) => setUserType(e.target.value)}
                         className="w-full pl-10 pr-4 py-2 border rounded-md focus:ring-2 focus:ring-gray-400 focus:border-transparent"
                       >
-                        <option value="executive">Executive</option>
+                        <option value="executive1">Executive1</option>
                         <option value="admin">Administrator</option>
                       </select>
                     </div>

@@ -86,7 +86,7 @@ export default function AdminDashboard() {
     const username = localStorage.getItem("adminUsername")
 
     if (!isLoggedIn) {
-      router.push("/admin/login")
+      router.push("/")
       return
     }
 
