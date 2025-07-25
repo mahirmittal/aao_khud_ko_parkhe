@@ -30,9 +30,12 @@ import {
   Phone,
   UserPlus,
   Trash2,
+  Download,
+  FileText,
 } from "lucide-react"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { LanguageSwitcher } from "@/components/LanguageSwitcher"
+import { exportFeedbackToPDF, exportDepartmentSummary } from "@/lib/pdfExport"
 
 interface Feedback {
   id: string
@@ -355,6 +358,28 @@ export default function AdminDashboard() {
     }
   }
 
+  // PDF Export Functions
+  const handleExportAllFeedbacks = () => {
+    console.log('Exporting all feedbacks:', filteredFeedbacks.length)
+    const success = exportFeedbackToPDF(filteredFeedbacks, 'All Departments', 'Complete Feedback Report')
+    console.log('Export all feedbacks result:', success)
+  }
+
+  const handleExportByDepartment = (department: string) => {
+    const departmentFeedbacks = feedbacks.filter(feedback =>
+      feedback.department === department
+    )
+    console.log(`Exporting ${departmentFeedbacks.length} feedbacks for department:`, department)
+    const success = exportFeedbackToPDF(departmentFeedbacks, department, `${department} Feedback Report`)
+    console.log('Export by department result:', success)
+  }
+
+  const handleExportDepartmentSummary = () => {
+    console.log('Exporting department summary for', feedbacks.length, 'feedbacks')
+    const success = exportDepartmentSummary(feedbacks)
+    console.log('Export summary result:', success)
+  }
+
   const stats = {
     total: feedbacks.length,
     satisfied: feedbacks.filter((f) => f.satisfaction === "satisfied").length,
@@ -580,6 +605,62 @@ export default function AdminDashboard() {
                 </CardContent>
               </Card>
             </div>
+
+            {/* PDF Export Section */}
+            <Card className="mb-6 shadow-lg border-0">
+              <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-t-lg border-b border-purple-200">
+                <div className="flex items-center space-x-2">
+                  <Download className="w-5 h-5 text-purple-600" />
+                  <CardTitle className="text-xl text-purple-800">Export Reports</CardTitle>
+                </div>
+                <CardDescription className="text-purple-700">Download feedback data in PDF format</CardDescription>
+              </CardHeader>
+              <CardContent className="p-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <Button
+                    onClick={handleExportAllFeedbacks}
+                    className="bg-blue-600 hover:bg-blue-700 text-white flex items-center space-x-2"
+                  >
+                    <FileText className="w-4 h-4" />
+                    <span>All Feedbacks</span>
+                  </Button>
+
+                  <Button
+                    onClick={() => handleExportByDepartment('Health Department')}
+                    className="bg-green-600 hover:bg-green-700 text-white flex items-center space-x-2"
+                  >
+                    <FileText className="w-4 h-4" />
+                    <span>Health Dept</span>
+                  </Button>
+
+                  <Button
+                    onClick={() => handleExportByDepartment('Finance Department')}
+                    className="bg-orange-600 hover:bg-orange-700 text-white flex items-center space-x-2"
+                  >
+                    <FileText className="w-4 h-4" />
+                    <span>Finance Dept</span>
+                  </Button>
+
+                  <Button
+                    onClick={() => handleExportByDepartment('Tax Department')}
+                    className="bg-red-600 hover:bg-red-700 text-white flex items-center space-x-2"
+                  >
+                    <FileText className="w-4 h-4" />
+                    <span>Tax Dept</span>
+                  </Button>
+                </div>
+
+                <div className="mt-4 pt-4 border-t border-gray-200">
+                  <Button
+                    onClick={handleExportDepartmentSummary}
+                    className="bg-purple-600 hover:bg-purple-700 text-white flex items-center space-x-2"
+                  >
+                    <Download className="w-4 h-4" />
+                    <span>Department Summary Report</span>
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
 
             {/* Filters */}
             <Card className="mb-8 shadow-lg border-0">
