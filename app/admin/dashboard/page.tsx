@@ -45,6 +45,7 @@ interface Feedback {
   submittedAt: string
   status: string
   queryType: string
+  department: string
 }
 
 interface User {
@@ -53,6 +54,15 @@ interface User {
   password: string
   type: string
   active: boolean
+  createdAt: string
+  updatedAt: string
+}
+
+interface Department {
+  id: string
+  deptName: string
+  deptEmail: string
+  deptContactNo: string
   createdAt: string
   updatedAt: string
 }
@@ -79,6 +89,16 @@ export default function AdminDashboard() {
     active: true
   })
 
+  // Department management states
+  const [departments, setDepartments] = useState<Department[]>([])
+  const [editingDepartment, setEditingDepartment] = useState<Department | null>(null)
+  const [showAddDepartment, setShowAddDepartment] = useState(false)
+  const [newDepartment, setNewDepartment] = useState({
+    deptName: "",
+    deptEmail: "",
+    deptContactNo: ""
+  })
+
   const router = useRouter()
 
   useEffect(() => {
@@ -96,6 +116,7 @@ export default function AdminDashboard() {
 
     fetchFeedbacks()
     fetchUsers()
+    fetchDepartments()
   }, [router])
 
   useEffect(() => {
@@ -169,6 +190,19 @@ export default function AdminDashboard() {
     }
   }
 
+  // Department management functions
+  const fetchDepartments = async () => {
+    try {
+      const response = await fetch("/api/departments")
+      if (response.ok) {
+        const data = await response.json()
+        setDepartments(data)
+      }
+    } catch (error) {
+      console.error("Error fetching departments:", error)
+    }
+  }
+
   const handleAddUser = async () => {
     try {
       const response = await fetch("/api/users", {
@@ -239,10 +273,96 @@ export default function AdminDashboard() {
     }
   }
 
+  const handleAddDepartment = async () => {
+    try {
+      const response = await fetch("/api/departments", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(newDepartment),
+      })
+
+      const data = await response.json()
+
+      if (response.ok) {
+        fetchDepartments()
+        setShowAddDepartment(false)
+        setNewDepartment({
+          deptName: "",
+          deptEmail: "",
+          deptContactNo: ""
+        })
+        alert("Department created successfully!")
+      } else {
+        alert(data.error || "Failed to create department")
+      }
+    } catch (error) {
+      console.error("Error creating department:", error)
+      alert("Failed to create department")
+    }
+  }
+
+  const handleUpdateDepartment = async () => {
+    if (!editingDepartment) return
+
+    try {
+      const response = await fetch(`/api/departments/${editingDepartment.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          deptName: editingDepartment.deptName,
+          deptEmail: editingDepartment.deptEmail,
+          deptContactNo: editingDepartment.deptContactNo,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (response.ok) {
+        fetchDepartments()
+        setEditingDepartment(null)
+        alert("Department updated successfully!")
+      } else {
+        alert(data.error || "Failed to update department")
+      }
+    } catch (error) {
+      console.error("Error updating department:", error)
+      alert("Failed to update department")
+    }
+  }
+
+  const handleDeleteDepartment = async (deptId: string) => {
+    if (!confirm("Are you sure you want to delete this department?")) return
+
+    try {
+      const response = await fetch(`/api/departments/${deptId}`, {
+        method: "DELETE",
+      })
+
+      if (response.ok) {
+        fetchDepartments()
+        alert("Department deleted successfully!")
+      } else {
+        const data = await response.json()
+        alert(data.error || "Failed to delete department")
+      }
+    } catch (error) {
+      console.error("Error deleting department:", error)
+      alert("Failed to delete department")
+    }
+  }
+
   const stats = {
     total: feedbacks.length,
     satisfied: feedbacks.filter((f) => f.satisfaction === "satisfied").length,
     notSatisfied: feedbacks.filter((f) => f.satisfaction === "not-satisfied").length,
+    mobileMissing: feedbacks.filter((f) => f.satisfaction === "mobile-missing").length,
+    numberIncorrect: feedbacks.filter((f) => f.satisfaction === "number-incorrect").length,
+    callNotPicked: feedbacks.filter((f) => f.satisfaction === "call-not-picked").length,
+    personNotExist: feedbacks.filter((f) => f.satisfaction === "person-not-exist").length,
     pending: feedbacks.filter((f) => f.status === "pending").length,
   }
 
@@ -339,13 +459,23 @@ export default function AdminDashboard() {
               <Users className="w-4 h-4 mr-2" />
               User Management
             </button>
+            <button
+              onClick={() => setActiveTab("departments")}
+              className={`flex-1 flex items-center justify-center px-4 py-2 rounded-md text-sm font-medium transition-colors ${activeTab === "departments"
+                ? "bg-white text-blue-600 shadow-sm"
+                : "text-gray-600 hover:text-gray-900"
+                }`}
+            >
+              <Phone className="w-4 h-4 mr-2" />
+              Department Management
+            </button>
           </div>
         </div>
 
         {activeTab === "feedback" && (
           <>
             {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-6 mb-8">
               <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200 shadow-lg hover:shadow-xl transition-shadow">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium text-green-800">{t("admin.totalFeedbacks")}</CardTitle>
@@ -382,6 +512,58 @@ export default function AdminDashboard() {
                 <CardContent>
                   <div className="text-3xl font-bold text-orange-900">{stats.notSatisfied}</div>
                   <p className="text-xs text-orange-600 mt-1">Need attention</p>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-gradient-to-br from-yellow-50 to-yellow-100 border-yellow-200 shadow-lg hover:shadow-xl transition-shadow">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium text-yellow-800">Mobile Missing</CardTitle>
+                  <div className="p-2 bg-yellow-600 rounded-lg">
+                    <Phone className="h-4 w-4 text-white" />
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-bold text-yellow-900">{stats.mobileMissing}</div>
+                  <p className="text-xs text-yellow-600 mt-1">Mobile number missing</p>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200 shadow-lg hover:shadow-xl transition-shadow">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium text-orange-800">Number Incorrect</CardTitle>
+                  <div className="p-2 bg-orange-600 rounded-lg">
+                    <Phone className="h-4 w-4 text-white" />
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-bold text-orange-900">{stats.numberIncorrect}</div>
+                  <p className="text-xs text-orange-600 mt-1">Number incorrect</p>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-gradient-to-br from-gray-50 to-gray-100 border-gray-200 shadow-lg hover:shadow-xl transition-shadow">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium text-gray-800">Call Not Picked</CardTitle>
+                  <div className="p-2 bg-gray-600 rounded-lg">
+                    <Phone className="h-4 w-4 text-white" />
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-bold text-gray-900">{stats.callNotPicked}</div>
+                  <p className="text-xs text-gray-600 mt-1">Call not picked</p>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200 shadow-lg hover:shadow-xl transition-shadow">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium text-purple-800">Person Doesn't Exist</CardTitle>
+                  <div className="p-2 bg-purple-600 rounded-lg">
+                    <UserPlus className="h-4 w-4 text-white" />
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-bold text-purple-900">{stats.personNotExist}</div>
+                  <p className="text-xs text-purple-600 mt-1">Person doesn't exist</p>
                 </CardContent>
               </Card>
 
@@ -464,14 +646,27 @@ export default function AdminDashboard() {
                           <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200 px-3 py-1">
                             {t("common.query")} {feedback.queryType}
                           </Badge>
+                          {feedback.department && (
+                            <Badge variant="outline" className="bg-orange-50 text-orange-700 border-orange-200 px-3 py-1">
+                              Department: {feedback.department}
+                            </Badge>
+                          )}
                           <Badge
-                            variant={feedback.satisfaction === "satisfied" ? "default" : "destructive"}
-                            className={`px-3 py-1 ${feedback.satisfaction === "satisfied"
-                              ? "bg-green-100 text-green-800 border-green-200"
-                              : "bg-red-100 text-red-800 border-red-200"
+                            className={`px-3 py-1 ${feedback.satisfaction === "satisfied" ? "bg-green-100 text-green-800 border-green-200" :
+                              feedback.satisfaction === "not-satisfied" ? "bg-red-100 text-red-800 border-red-200" :
+                                feedback.satisfaction === "mobile-missing" ? "bg-yellow-100 text-yellow-800 border-yellow-200" :
+                                  feedback.satisfaction === "number-incorrect" ? "bg-orange-100 text-orange-800 border-orange-200" :
+                                    feedback.satisfaction === "call-not-picked" ? "bg-gray-100 text-gray-800 border-gray-200" :
+                                      feedback.satisfaction === "person-not-exist" ? "bg-purple-100 text-purple-800 border-purple-200" :
+                                        "bg-gray-50 text-gray-700 border-gray-200"
                               }`}
                           >
-                            {feedback.satisfaction === "satisfied" ? "✓ Satisfied" : "✗ Not Satisfied"}
+                            {feedback.satisfaction === "satisfied" && "✓ Satisfied"}
+                            {feedback.satisfaction === "not-satisfied" && "✗ Not Satisfied"}
+                            {feedback.satisfaction === "mobile-missing" && "Mobile number missing"}
+                            {feedback.satisfaction === "number-incorrect" && "Number incorrect"}
+                            {feedback.satisfaction === "call-not-picked" && "Call not picked"}
+                            {feedback.satisfaction === "person-not-exist" && "Person doesn't exist"}
                           </Badge>
                           <Badge
                             variant={feedback.status === "resolved" ? "default" : "secondary"}
@@ -623,9 +818,8 @@ export default function AdminDashboard() {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="admin">Admin</SelectItem>
-                        <SelectItem value="Executive">Executive</SelectItem>
-                        <SelectItem value="manager">Manager</SelectItem>
-                        <SelectItem value="Executive">Executive</SelectItem>
+
+                        <SelectItem value="Executive">Executive1</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -775,6 +969,176 @@ export default function AdminDashboard() {
                   </Button>
                   <Button onClick={() => editingUser && handleUpdateUser(editingUser.id, editingUser)}>
                     Update User
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
+          </div>
+        )}
+
+        {activeTab === "departments" && (
+          <div>
+            <div className="flex justify-between items-center mb-6">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">Department Management</h2>
+                <p className="text-gray-600">Manage government departments and their contact information</p>
+              </div>
+              <Dialog open={showAddDepartment} onOpenChange={setShowAddDepartment}>
+                <DialogTrigger asChild>
+                  <Button className="bg-blue-600 hover:bg-blue-700">
+                    <UserPlus className="w-4 h-4 mr-2" />
+                    Add Department
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Add New Department</DialogTitle>
+                    <DialogDescription>
+                      Create a new government department with contact details
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-4">
+                    <div>
+                      <Label htmlFor="deptName">Department Name</Label>
+                      <Select
+                        value={newDepartment.deptName}
+                        onValueChange={(value) => setNewDepartment({ ...newDepartment, deptName: value })}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a department" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Health Department">Health Department</SelectItem>
+                          <SelectItem value="Finance Department">Finance Department</SelectItem>
+                          <SelectItem value="Tax Department">Tax Department</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label htmlFor="deptEmail">Department Email</Label>
+                      <Input
+                        id="deptEmail"
+                        type="email"
+                        value={newDepartment.deptEmail}
+                        onChange={(e) => setNewDepartment({ ...newDepartment, deptEmail: e.target.value })}
+                        placeholder="e.g., health@cg.gov.in"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="deptContactNo">Contact Number</Label>
+                      <Input
+                        id="deptContactNo"
+                        value={newDepartment.deptContactNo}
+                        onChange={(e) => setNewDepartment({ ...newDepartment, deptContactNo: e.target.value })}
+                        placeholder="10-digit contact number"
+                        maxLength={10}
+                      />
+                    </div>
+                  </div>
+                  <div className="flex justify-end space-x-2">
+                    <Button variant="outline" onClick={() => setShowAddDepartment(false)}>
+                      Cancel
+                    </Button>
+                    <Button onClick={handleAddDepartment}>Create Department</Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </div>
+
+            <div className="grid gap-4">
+              {departments.map((dept) => (
+                <Card key={dept.id} className="p-6 hover:shadow-lg transition-shadow">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-4">
+                      <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                        <span className="text-blue-600 font-semibold text-lg">
+                          {dept.deptName.charAt(0).toUpperCase()}
+                        </span>
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-gray-900">{dept.deptName}</h3>
+                        <p className="text-sm text-gray-600">{dept.deptEmail}</p>
+                        <p className="text-sm text-gray-600">📞 {dept.deptContactNo}</p>
+                        <p className="text-xs text-gray-400">
+                          Created: {new Date(dept.createdAt).toLocaleDateString()}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex space-x-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setEditingDepartment(dept)}
+                      >
+                        <Edit className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleDeleteDepartment(dept.id)}
+                        className="text-red-600 hover:text-red-800"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </Card>
+              ))}
+            </div>
+
+            {/* Edit Department Dialog */}
+            <Dialog open={!!editingDepartment} onOpenChange={() => setEditingDepartment(null)}>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Edit Department</DialogTitle>
+                  <DialogDescription>
+                    Update department information
+                  </DialogDescription>
+                </DialogHeader>
+                {editingDepartment && (
+                  <div className="space-y-4">
+                    <div>
+                      <Label htmlFor="editDeptName">Department Name</Label>
+                      <Select
+                        value={editingDepartment.deptName}
+                        onValueChange={(value) => setEditingDepartment({ ...editingDepartment, deptName: value })}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a department" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Health Department">Health Department</SelectItem>
+                          <SelectItem value="Finance Department">Finance Department</SelectItem>
+                          <SelectItem value="Tax Department">Tax Department</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label htmlFor="editDeptEmail">Department Email</Label>
+                      <Input
+                        id="editDeptEmail"
+                        type="email"
+                        value={editingDepartment.deptEmail}
+                        onChange={(e) => setEditingDepartment({ ...editingDepartment, deptEmail: e.target.value })}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="editDeptContactNo">Contact Number</Label>
+                      <Input
+                        id="editDeptContactNo"
+                        value={editingDepartment.deptContactNo}
+                        onChange={(e) => setEditingDepartment({ ...editingDepartment, deptContactNo: e.target.value })}
+                        maxLength={10}
+                      />
+                    </div>
+                  </div>
+                )}
+                <div className="flex justify-end space-x-2">
+                  <Button variant="outline" onClick={() => setEditingDepartment(null)}>
+                    Cancel
+                  </Button>
+                  <Button onClick={handleUpdateDepartment}>
+                    Update Department
                   </Button>
                 </div>
               </DialogContent>

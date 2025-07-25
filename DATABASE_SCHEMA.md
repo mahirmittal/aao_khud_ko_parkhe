@@ -94,7 +94,58 @@ This project uses **MongoDB** as the primary database with schema validation to 
 }
 ```
 
-#### 3. `feedbacks` Collection (Feedback Management)
+#### 3. `departments` Collection (Department Management)
+**Purpose**: Stores government department information and contact details
+
+**Schema Validation**:
+```javascript
+{
+  deptName: {
+    type: String,
+    required: true,
+    unique: true,
+    enum: ["Health Department", "Finance Department", "Tax Department"]
+  },
+  deptEmail: {
+    type: String,
+    required: true,
+    unique: true,
+    pattern: "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+  },
+  deptContactNo: {
+    type: String,
+    required: true,
+    pattern: "^[0-9]{10}$"
+  },
+  createdAt: {
+    type: Date,
+    default: new Date()
+  },
+  updatedAt: {
+    type: Date,
+    default: new Date()
+  }
+}
+```
+
+**Indexes**:
+- `deptName` (unique)
+- `deptEmail` (unique)
+- `createdAt` (descending)
+
+**Example Document**:
+```javascript
+{
+  "_id": ObjectId("..."),
+  "deptName": "Health Department",
+  "deptEmail": "health@cg.gov.in",
+  "deptContactNo": "7712345001",
+  "createdAt": ISODate("2025-01-21T..."),
+  "updatedAt": ISODate("2025-01-21T...")
+}
+```
+
+#### 4. `feedbacks` Collection (Feedback Management)
 **Purpose**: Stores citizen feedback and call center interactions
 
 **Schema Validation**:
@@ -163,6 +214,12 @@ This project uses **MongoDB** as the primary database with schema validation to 
 - **POST** `/api/users` → `db.users.insertOne(newUser)`
 - **PUT** `/api/users/[id]` → `db.users.updateOne({_id}, updatedUser)`
 - **DELETE** `/api/users/[id]` → `db.users.deleteOne({_id})`
+
+### Department Management APIs
+- **GET** `/api/departments` → `db.departments.find({})`
+- **POST** `/api/departments` → `db.departments.insertOne(newDepartment)`
+- **PUT** `/api/departments/[id]` → `db.departments.updateOne({_id}, updatedDepartment)`
+- **DELETE** `/api/departments/[id]` → `db.departments.deleteOne({_id})`
 
 ### Admin Authentication APIs
 - **POST** `/api/admin/login` → `db.adminC.findOne({username})`

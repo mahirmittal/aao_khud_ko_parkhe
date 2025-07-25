@@ -6,14 +6,14 @@ export async function GET() {
   try {
     const db = await getDb()
     const feedbacks = await db.collection('feedbacks').find({}).sort({ submittedAt: -1 }).toArray()
-    
+
     // Convert ObjectId to string for JSON serialization
     const serializedFeedbacks = feedbacks.map(feedback => ({
       ...feedback,
       _id: feedback._id.toString(),
       id: feedback._id.toString()
     }))
-    
+
     return NextResponse.json(serializedFeedbacks)
   } catch (error) {
     console.error('Error fetching feedbacks:', error)
@@ -26,26 +26,33 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const db = await getDb()
 
-    // Validate required fields
-    const { callId, citizenMobile, citizenName, queryType, satisfaction, description, submittedBy, status } = body
+    // Accept all fields as optional
+    const { callId, citizenMobile, citizenName, queryType, department, satisfaction, description, submittedBy, status } = body
 
-    if (!callId || !citizenMobile || !citizenName || !satisfaction || !description || !submittedBy) {
-      return NextResponse.json({ 
-        error: "Missing required fields: callId, citizenMobile, citizenName, satisfaction, description, submittedBy" 
-      }, { status: 400 })
-    }
-
-    // Validate mobile number format
-    if (!/^[0-9]{10}$/.test(citizenMobile)) {
-      return NextResponse.json({ 
-        error: "citizenMobile must be a 10-digit number" 
+    // Validate department value
+    const validDepartments = [
+      "Health Department",
+      "Finance Department",
+      "Tax Department"
+    ];
+    if (department && !validDepartments.includes(department)) {
+      return NextResponse.json({
+        error: `department must be one of: ${validDepartments.join(", ")}`
       }, { status: 400 })
     }
 
     // Validate satisfaction value
-    if (!["satisfied", "not-satisfied"].includes(satisfaction)) {
-      return NextResponse.json({ 
-        error: "satisfaction must be either 'satisfied' or 'not-satisfied'" 
+    const validSatisfactions = [
+      "satisfied",
+      "not-satisfied",
+      "mobile-missing",
+      "number-incorrect",
+      "call-not-picked",
+      "person-not-exist"
+    ];
+    if (!validSatisfactions.includes(satisfaction)) {
+      return NextResponse.json({
+        error: `satisfaction must be one of: ${validSatisfactions.join(", ")}`
       }, { status: 400 })
     }
 
@@ -55,6 +62,7 @@ export async function POST(request: NextRequest) {
       citizenMobile: String(citizenMobile),
       citizenName: String(citizenName),
       queryType: queryType ? String(queryType) : "",
+      department: department ? String(department) : "",
       satisfaction: String(satisfaction),
       description: String(description),
       submittedBy: String(submittedBy),
@@ -65,7 +73,7 @@ export async function POST(request: NextRequest) {
     }
 
     const result = await db.collection('feedbacks').insertOne(newFeedback)
-    
+
     const insertedFeedback = {
       ...newFeedback,
       _id: result.insertedId.toString(),
@@ -74,8 +82,12 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true, feedback: insertedFeedback })
   } catch (error) {
-    console.error('Error creating feedback:', error)
-    return NextResponse.json({ error: "Failed to create feedback" }, { status: 500 })
+    console.error('Error creating feedback:', error);
+    // Log stack trace and error details for debugging
+    if (error instanceof Error) {
+      return NextResponse.json({ error: error.message, stack: error.stack }, { status: 500 });
+    }
+    return NextResponse.json({ error: JSON.stringify(error) }, { status: 500 });
   }
 }
 
@@ -91,8 +103,8 @@ export async function PUT(request: NextRequest) {
 
     const result = await db.collection('feedbacks').findOneAndUpdate(
       { _id: new ObjectId(id) },
-      { 
-        $set: { 
+      {
+        $set: {
           status,
           updatedAt: new Date()
         }

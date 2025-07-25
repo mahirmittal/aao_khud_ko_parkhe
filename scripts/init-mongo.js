@@ -12,55 +12,33 @@ db.createCollection('feedbacks', {
   validator: {
     $jsonSchema: {
       bsonType: "object",
-      required: ["callId", "citizenMobile", "citizenName", "satisfaction", "description", "submittedBy", "submittedAt", "status"],
       properties: {
-        callId: {
+        callId: { bsonType: "string" },
+        citizenMobile: { bsonType: "string" },
+        citizenName: { bsonType: "string" },
+        queryType: { bsonType: "string" },
+        department: {
           bsonType: "string",
-          description: "must be a string and is required"
-        },
-        citizenMobile: {
-          bsonType: "string",
-          pattern: "^[0-9]{10}$",
-          description: "must be a 10-digit mobile number"
-        },
-        citizenName: {
-          bsonType: "string",
-          description: "must be a string and is required"
-        },
-        queryType: {
-          bsonType: "string",
-          description: "must be a string"
+          enum: ["Health Department", "Finance Department", "Tax Department"],
+          description: "must be one of the predefined department names"
         },
         satisfaction: {
           bsonType: "string",
-          enum: ["satisfied", "not-satisfied"],
-          description: "must be either satisfied or not-satisfied"
+          enum: [
+            "satisfied",
+            "not-satisfied",
+            "mobile-missing",
+            "number-incorrect",
+            "call-not-picked",
+            "person-not-exist"
+          ]
         },
-        description: {
-          bsonType: "string",
-          description: "must be a string and is required"
-        },
-        submittedBy: {
-          bsonType: "string",
-          description: "must be a string and is required"
-        },
-        submittedAt: {
-          bsonType: "date",
-          description: "must be a date and is required"
-        },
-        status: {
-          bsonType: "string",
-          enum: ["pending", "resolved"],
-          description: "must be either pending or resolved"
-        },
-        createdAt: {
-          bsonType: "date",
-          description: "must be a date"
-        },
-        updatedAt: {
-          bsonType: "date",
-          description: "must be a date"
-        }
+        description: { bsonType: "string" },
+        submittedBy: { bsonType: "string" },
+        submittedAt: { bsonType: "date" },
+        status: { bsonType: "string", enum: ["pending", "resolved"] },
+        createdAt: { bsonType: "date" },
+        updatedAt: { bsonType: "date" }
       }
     }
   }
@@ -92,6 +70,41 @@ db.createCollection('users', {
         active: {
           bsonType: "bool",
           description: "must be a boolean and is required"
+        },
+        createdAt: {
+          bsonType: "date",
+          description: "must be a date"
+        },
+        updatedAt: {
+          bsonType: "date",
+          description: "must be a date"
+        }
+      }
+    }
+  }
+});
+
+// Create departments collection for department management
+db.createCollection('departments', {
+  validator: {
+    $jsonSchema: {
+      bsonType: "object",
+      required: ["deptName", "deptEmail", "deptContactNo"],
+      properties: {
+        deptName: {
+          bsonType: "string",
+          enum: ["Health Department", "Finance Department", "Tax Department"],
+          description: "must be one of the predefined department names and is required"
+        },
+        deptEmail: {
+          bsonType: "string",
+          pattern: "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          description: "must be a valid email address and is required"
+        },
+        deptContactNo: {
+          bsonType: "string",
+          pattern: "^[0-9]{10}$",
+          description: "must be a 10-digit phone number and is required"
         },
         createdAt: {
           bsonType: "date",
@@ -139,6 +152,11 @@ db.users.createIndex({ "type": 1 });
 db.users.createIndex({ "active": 1 });
 db.users.createIndex({ "createdAt": -1 });
 
+// Create indexes for departments collection
+db.departments.createIndex({ "deptName": 1 }, { unique: true });
+db.departments.createIndex({ "deptEmail": 1 }, { unique: true });
+db.departments.createIndex({ "createdAt": -1 });
+
 // Create unique index for admin collection
 db.adminC.createIndex({ "username": 1 }, { unique: true });
 
@@ -149,6 +167,7 @@ db.feedbacks.insertMany([
     citizenMobile: "9876543210",
     citizenName: "Ramesh Kumar",
     queryType: "Birth Certificate",
+    department: "Health Department",
     satisfaction: "satisfied",
     description: "Citizen was satisfied with the quick resolution. Birth certificate application was processed successfully and citizen received confirmation.",
     submittedBy: "EXE001",
@@ -162,6 +181,7 @@ db.feedbacks.insertMany([
     citizenMobile: "9876543211",
     citizenName: "Sunita Devi",
     queryType: "Income Certificate",
+    department: "Finance Department",
     satisfaction: "not-satisfied",
     description: "Citizen was not satisfied with the processing time. Income certificate application is taking longer than expected. Requires follow-up with district office.",
     submittedBy: "EXE002",
@@ -175,6 +195,7 @@ db.feedbacks.insertMany([
     citizenMobile: "9876543212",
     citizenName: "Mohan Lal",
     queryType: "Caste Certificate",
+    department: "Tax Department",
     satisfaction: "satisfied",
     description: "Query resolved successfully. Citizen was guided through the online application process and received immediate confirmation.",
     submittedBy: "EXE001",
@@ -231,10 +252,42 @@ try {
   print('Error creating sample users: ' + e);
 }
 
+// Insert sample departments
+print('Creating sample departments...');
+try {
+  db.departments.insertMany([
+    {
+      deptName: "Health Department",
+      deptEmail: "health@cg.gov.in",
+      deptContactNo: "7712345001",
+      createdAt: new Date(),
+      updatedAt: new Date()
+    },
+    {
+      deptName: "Finance Department",
+      deptEmail: "finance@cg.gov.in",
+      deptContactNo: "7712345002",
+      createdAt: new Date(),
+      updatedAt: new Date()
+    },
+    {
+      deptName: "Tax Department",
+      deptEmail: "tax@cg.gov.in",
+      deptContactNo: "7712345003",
+      createdAt: new Date(),
+      updatedAt: new Date()
+    }
+  ]);
+  print('Sample departments created successfully');
+} catch (e) {
+  print('Error creating sample departments: ' + e);
+}
+
 print('MongoDB initialization completed successfully!');
 print('Database: cg_portal_feedback');
 print('Collections created with schema validation:');
 print('- feedbacks (with validation)');
 print('- users (with validation)');
+print('- departments (with validation)');
 print('- adminC (for admin authentication)');
-print('Sample data inserted: 3 feedbacks, 1 admin, 3 sample users');
+print('Sample data inserted: 3 feedbacks, 1 admin, 3 sample users, 3 sample departments (Health, Finance, Tax)');

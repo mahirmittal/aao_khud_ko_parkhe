@@ -74,18 +74,18 @@ export default function HomePage() {
           {/* Top Header Row */}
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-4">
-              <img
+              {/* <img
                 src="https://cgstate.gov.in/user-assets/images/logo-cg.png"
                 alt="Government of India"
                 className="w-16 h-16 object-contain"
-              />
+              /> */}
               <img
                 src="https://cgstate.gov.in/user-assets/images/logo-cg.png"
                 alt="Chhattisgarh Government"
                 className="w-16 h-16 object-contain"
               />
               <div>
-                <h1 className="text-2xl font-bold text-blue-900">DISTRICT PORTAL</h1>
+                <h1 className="text-2xl font-bold text-blue-900">आओ खुद को परखें</h1>
                 <p className="text-sm text-blue-800">छत्तीसगढ़ शासन | GOVERNMENT OF CHHATTISGARH</p>
               </div>
             </div>
@@ -100,7 +100,7 @@ export default function HomePage() {
           </div>
 
           {/* Officials Row */}
-          <div className="flex justify-center space-x-8 mb-4">
+          {/* <div className="flex justify-center space-x-8 mb-4">
             {[
               { name: "Shri Raman Deka", title: "Hon. Governor, C.G." },
               { name: "Shri Vishnu Deo Sai", title: "Hon. Chief Minister, C.G." },
@@ -116,7 +116,7 @@ export default function HomePage() {
                 <p className="text-xs text-blue-800">{official.title}</p>
               </div>
             ))}
-          </div>
+          </div> */}
         </div>
       </header>
 
