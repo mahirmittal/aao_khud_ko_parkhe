@@ -63,6 +63,7 @@
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground;
   }
@@ -73,6 +74,7 @@
   0% {
     transform: translateX(100%);
   }
+
   100% {
     transform: translateX(-100%);
   }
@@ -179,4 +181,53 @@
   background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
   color: #1e40af;
   border: 1px solid #2563eb;
+}
+
+/* District Card Sliding Animation */
+@keyframes slideHindi {
+
+  0%,
+  45% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+
+  50%,
+  95% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideEnglish {
+
+  0%,
+  45% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+
+  50%,
+  95% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+.animate-slide-hindi {
+  animation: slideHindi 8s ease-in-out infinite;
+}
+
+.animate-slide-english {
+  animation: slideEnglish 8s ease-in-out infinite;
 }

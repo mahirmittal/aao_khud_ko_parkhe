@@ -169,15 +169,35 @@ export default function HomePage() {
               </CardContent>
             </Card>
 
-            {/* Rajdhani Section */}
-            <Card className="border-orange-300">
-              <CardHeader className="bg-orange-100 border-b border-orange-300">
-                <CardTitle className="text-orange-800 text-center">राजधानी</CardTitle>
-              </CardHeader>
-              <CardContent className="text-center py-6">
-                <h3 className="text-2xl font-bold text-red-600 mb-1">रायपुर</h3>
-                <p className="text-sm text-gray-600">Capital City</p>
-              </CardContent>
+            {/* Rajdhani Section - Sliding Cards */}
+            <Card className="border-orange-300 overflow-hidden">
+              <div className="relative h-40">
+                {/* Hindi Card */}
+                <div className="absolute inset-0 transition-transform duration-1000 ease-in-out animate-slide-hindi">
+                  <CardHeader className="bg-orange-100 border-b border-orange-300">
+                    <CardTitle className="text-orange-800 text-center">
+                      ज़िला
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="text-center py-6">
+                    <h3 className="text-2xl font-bold text-red-600 mb-1">रायपुर जिला में आपका स्वागत है ||</h3>
+                    <p className="text-sm text-gray-600">राजधानी शहर</p>
+                  </CardContent>
+                </div>
+
+                {/* English Card */}
+                <div className="absolute inset-0 transition-transform duration-1000 ease-in-out animate-slide-english">
+                  <CardHeader className="bg-blue-100 border-b border-blue-300">
+                    <CardTitle className="text-blue-800 text-center">
+                      District
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="text-center ">
+                    <h3 className="text-2xl font-bold  text-blue-600 mb-1">Welcome to District Raipur</h3>
+                   {/* <p className="text-sm text-gray-600">Capital City</p> */}
+                  </CardContent>
+                </div>
+              </div>
             </Card>
           </div>
 
@@ -212,7 +232,7 @@ export default function HomePage() {
                         onChange={(e) => setUserType(e.target.value)}
                         className="w-full pl-10 pr-4 py-2 border rounded-md focus:ring-2 focus:ring-gray-400 focus:border-transparent"
                       >
-                        <option value="executive1">Executive1</option>
+                        <option value="executive1">Executive</option>
                         <option value="admin">Administrator</option>
                       </select>
                     </div>

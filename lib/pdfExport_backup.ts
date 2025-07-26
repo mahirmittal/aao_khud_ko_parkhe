@@ -112,6 +112,7 @@ export const exportFeedbackToPDF = (
     return true
   } catch (error) {
     console.error('Error generating PDF:', error)
+    alert('Error generating PDF. Please try again.')
     return false
   }
 }
@@ -182,6 +183,7 @@ export const exportDepartmentSummary = (feedbacks: Feedback[]) => {
     return true
   } catch (error) {
     console.error('Error generating summary PDF:', error)
+    alert('Error generating summary PDF. Please try again.')
     return false
   }
 }

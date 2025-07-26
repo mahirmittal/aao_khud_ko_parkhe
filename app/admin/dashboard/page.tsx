@@ -102,6 +102,9 @@ export default function AdminDashboard() {
     deptContactNo: ""
   })
 
+  // PDF Export states
+  const [selectedExportDepartment, setSelectedExportDepartment] = useState("All Departments")
+
   const router = useRouter()
 
   useEffect(() => {
@@ -359,25 +362,46 @@ export default function AdminDashboard() {
   }
 
   // PDF Export Functions
-  const handleExportAllFeedbacks = () => {
-    console.log('Exporting all feedbacks:', filteredFeedbacks.length)
-    const success = exportFeedbackToPDF(filteredFeedbacks, 'All Departments', 'Complete Feedback Report')
-    console.log('Export all feedbacks result:', success)
-  }
-
-  const handleExportByDepartment = (department: string) => {
-    const departmentFeedbacks = feedbacks.filter(feedback =>
-      feedback.department === department
-    )
-    console.log(`Exporting ${departmentFeedbacks.length} feedbacks for department:`, department)
-    const success = exportFeedbackToPDF(departmentFeedbacks, department, `${department} Feedback Report`)
-    console.log('Export by department result:', success)
-  }
-
   const handleExportDepartmentSummary = () => {
-    console.log('Exporting department summary for', feedbacks.length, 'feedbacks')
-    const success = exportDepartmentSummary(feedbacks)
-    console.log('Export summary result:', success)
+    exportDepartmentSummary(feedbacks)
+  }
+
+  // Dynamic export functions based on dropdown selection
+  const handleDynamicExportAllFeedbacks = () => {
+    if (selectedExportDepartment === "All Departments") {
+      exportFeedbackToPDF(filteredFeedbacks, 'All Departments', 'Complete Feedback Report')
+    } else {
+      const departmentFeedbacks = feedbacks.filter(feedback =>
+        feedback.department === selectedExportDepartment
+      )
+      exportFeedbackToPDF(departmentFeedbacks, selectedExportDepartment, `${selectedExportDepartment} Feedback Report`)
+    }
+  }
+
+  const handleDynamicExportSatisfied = () => {
+    if (selectedExportDepartment === "All Departments") {
+      const satisfiedFeedbacks = feedbacks.filter(feedback => feedback.satisfaction === 'satisfied')
+      exportFeedbackToPDF(satisfiedFeedbacks, 'All Departments', 'Satisfied Feedback Report')
+    } else {
+      const departmentSatisfiedFeedbacks = feedbacks.filter(feedback =>
+        feedback.department === selectedExportDepartment && feedback.satisfaction === 'satisfied'
+      )
+      exportFeedbackToPDF(departmentSatisfiedFeedbacks, selectedExportDepartment, `${selectedExportDepartment} - Satisfied Feedback Report`)
+    }
+  }
+
+  const handleDynamicExportNotSatisfied = () => {
+    if (selectedExportDepartment === "All Departments") {
+      const notSatisfiedFeedbacks = feedbacks.filter(feedback =>
+        feedback.satisfaction !== 'satisfied'
+      )
+      exportFeedbackToPDF(notSatisfiedFeedbacks, 'All Departments', 'Not Satisfied Feedback Report')
+    } else {
+      const departmentNotSatisfiedFeedbacks = feedbacks.filter(feedback =>
+        feedback.department === selectedExportDepartment && feedback.satisfaction !== 'satisfied'
+      )
+      exportFeedbackToPDF(departmentNotSatisfiedFeedbacks, selectedExportDepartment, `${selectedExportDepartment} - Not Satisfied Feedback Report`)
+    }
   }
 
   const stats = {
@@ -463,12 +487,12 @@ export default function AdminDashboard() {
 
         {/* Tab Navigation */}
         <div className="mb-8">
-          <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg">
+          <div className="flex space-x-1 bg-gray-200 p-1 rounded-lg">
             <button
               onClick={() => setActiveTab("feedback")}
               className={`flex-1 flex items-center justify-center px-4 py-2 rounded-md text-sm font-medium transition-colors ${activeTab === "feedback"
                 ? "bg-white text-blue-600 shadow-sm"
-                : "text-gray-600 hover:text-gray-900"
+                : "text-gray-800 hover:text-gray-900"
                 }`}
             >
               <MessageSquare className="w-4 h-4 mr-2" />
@@ -613,44 +637,58 @@ export default function AdminDashboard() {
                   <Download className="w-5 h-5 text-purple-600" />
                   <CardTitle className="text-xl text-purple-800">Export Reports</CardTitle>
                 </div>
-                <CardDescription className="text-purple-700">Download feedback data in PDF format</CardDescription>
+                <CardDescription className="text-purple-700">Download feedback data in PDF format by satisfaction level</CardDescription>
               </CardHeader>
               <CardContent className="p-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                  <Button
-                    onClick={handleExportAllFeedbacks}
-                    className="bg-blue-600 hover:bg-blue-700 text-white flex items-center space-x-2"
-                  >
-                    <FileText className="w-4 h-4" />
-                    <span>All Feedbacks</span>
-                  </Button>
-
-                  <Button
-                    onClick={() => handleExportByDepartment('Health Department')}
-                    className="bg-green-600 hover:bg-green-700 text-white flex items-center space-x-2"
-                  >
-                    <FileText className="w-4 h-4" />
-                    <span>Health Dept</span>
-                  </Button>
-
-                  <Button
-                    onClick={() => handleExportByDepartment('Finance Department')}
-                    className="bg-orange-600 hover:bg-orange-700 text-white flex items-center space-x-2"
-                  >
-                    <FileText className="w-4 h-4" />
-                    <span>Finance Dept</span>
-                  </Button>
-
-                  <Button
-                    onClick={() => handleExportByDepartment('Tax Department')}
-                    className="bg-red-600 hover:bg-red-700 text-white flex items-center space-x-2"
-                  >
-                    <FileText className="w-4 h-4" />
-                    <span>Tax Dept</span>
-                  </Button>
+                {/* Department Selection Dropdown */}
+                <div className="mb-6">
+                  <Label htmlFor="department-select" className="text-sm font-medium text-gray-700 mb-2 block">
+                    Select Department
+                  </Label>
+                  <Select value={selectedExportDepartment} onValueChange={setSelectedExportDepartment}>
+                    <SelectTrigger className="w-full md:w-64 border-gray-300 focus:border-purple-500 focus:ring-purple-500">
+                      <SelectValue placeholder="Choose department" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="All Departments">All Departments</SelectItem>
+                      <SelectItem value="Health Department">Health Department</SelectItem>
+                      <SelectItem value="Finance Department">Finance Department</SelectItem>
+                      <SelectItem value="Tax Department">Tax Department</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
 
-                <div className="mt-4 pt-4 border-t border-gray-200">
+                {/* Export Buttons based on selected department */}
+                <div className="mb-6">
+                  <h3 className="text-lg font-semibold text-gray-800 mb-3">
+                    Export {selectedExportDepartment} Reports
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <Button
+                      onClick={handleDynamicExportAllFeedbacks}
+                      className="bg-blue-600 hover:bg-blue-700 text-white flex items-center space-x-2"
+                    >
+                      <FileText className="w-4 h-4" />
+                      <span>All Feedbacks</span>
+                    </Button>
+                    <Button
+                      onClick={handleDynamicExportSatisfied}
+                      className="bg-green-600 hover:bg-green-700 text-white flex items-center space-x-2"
+                    >
+                      <FileText className="w-4 h-4" />
+                      <span>Satisfied Only</span>
+                    </Button>
+                    <Button
+                      onClick={handleDynamicExportNotSatisfied}
+                      className="bg-red-600 hover:bg-red-700 text-white flex items-center space-x-2"
+                    >
+                      <FileText className="w-4 h-4" />
+                      <span>Not Satisfied Only</span>
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="mt-6 pt-4 border-t border-gray-200">
                   <Button
                     onClick={handleExportDepartmentSummary}
                     className="bg-purple-600 hover:bg-purple-700 text-white flex items-center space-x-2"

@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>आओ खुद को परखे</title>
+    <style>
+        @font-face {
+            font-family: 'CustomHindi';
+            src: url('./public/ga6CawNG-HJdxUD_-Ieq.woff2') format('woff2');
+            font-weight: normal;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        body {
+            font-family: 'Times New Roman', serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #fff;
+        }
+
+        .header {
+            text-align: center;
+            border-bottom: 3px solid #FF9800;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            color: #2196F3;
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-family: 'CustomHindi', 'Times New Roman', serif;
+        }
+
+        .subtitle {
+            color: #FF9800;
+            font-size: 1.3em;
+            margin-bottom: 10px;
+        }
+
+        .government {
+            color: #4CAF50;
+            font-size: 1.1em;
+            font-weight: bold;
+        }
+
+        h1 {
+            color: #2196F3;
+            border-left: 4px solid #2196F3;
+            padding-left: 15px;
+            font-size: 1.8em;
+            margin-top: 30px;
+        }
+
+        h2 {
+            color: #4CAF50;
+            font-size: 1.4em;
+            margin-top: 25px;
+        }
+
+        h3 {
+            color: #FF9800;
+            font-size: 1.2em;
+            margin-top: 20px;
+        }
+
+        .feature-box {
+            background: #f8f9fa;
+            border-left: 4px solid #4CAF50;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .benefit-card {
+            background: #fff;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .benefit-card h4 {
+            color: #2196F3;
+            margin-top: 0;
+            font-size: 1.1em;
+        }
+
+        ul {
+            padding-left: 25px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        .highlight {
+            background: #FFF3E0;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 4px solid #FF9800;
+            margin: 15px 0;
+        }
+
+        .stats-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        .stats-table th,
+        .stats-table td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+
+        .stats-table th {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .stats-table tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 50px;
+            padding-top: 20px;
+            border-top: 2px solid #e0e0e0;
+            color: #666;
+        }
+
+        @media print {
+            body {
+                max-width: none;
+                margin: 0;
+                padding: 15px;
+            }
+
+            .header {
+                page-break-after: avoid;
+            }
+
+            h1 {
+                page-break-after: avoid;
+            }
+        }
+
+        .toc {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+
+        .toc h2 {
+            margin-top: 0;
+            color: #2196F3;
+        }
+
+        .toc ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        .toc li {
+            padding: 5px 0;
+            border-bottom: 1px dotted #ccc;
+        }
+
+        .toc a {
+            text-decoration: none;
+            color: #333;
+        }
+
+        .toc a:hover {
+            color: #2196F3;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <div class="logo">आओ खुद को परखे</div>
+        <div class="subtitle">Digital Transformation Initiative</div>
+        <div class="government">Government of Chhattisgarh</div>
+        <p style="margin-top: 20px; color: #666;">
+            <strong>Project Overview and Features Report</strong><br>
+            Prepared by: Development Team | Date: July 2025 | Version: 1.0
+        </p>
+    </div>
+
+    <div class="toc">
+        <h2>Table of Contents</h2>
+        <ul>
+            <li><a href="#executive-summary">1. Executive Summary</a></li>
+            <li><a href="#project-vision">2. Project Vision and Objectives</a></li>
+            <li><a href="#system-overview">3. System Overview</a></li>
+            <li><a href="#key-features">4. Key Features and Capabilities</a></li>
+            <li><a href="#benefits">5. Benefits and Impact</a></li>
+            <li><a href="#conclusion">6. Conclusion</a></li>
+        </ul>
+    </div>
+
+    <h1 id="executive-summary">Executive Summary</h1>
+
+    <div class="highlight">
+        <strong>The CG Portal Feedback System represents a significant step forward in the Government of Chhattisgarh's
+            digital transformation journey.</strong>
+    </div>
+
+    <p>This comprehensive web-based platform has been specifically designed to modernize and streamline the process of
+        collecting, managing, and analyzing citizen feedback across multiple government departments for internal
+        government use. The system provides government employees with efficient tools to record, track, and manage
+        citizen feedback received through various channels such as phone calls, in-person visits, and other
+        communication methods. This platform bridges the gap between citizens and government departments by ensuring
+        that government staff can efficiently process and respond to every concern raised by the public.</p>
+
+    <p>The platform serves as a central hub for internal feedback management, enabling government officials and staff to
+        make data-driven decisions and continuously improve public services. By implementing this system, the Government
+        of Chhattisgarh demonstrates its commitment to transparency, accountability, and citizen-centric governance
+        through efficient internal processes.</p>
+
+    <h1 id="project-vision">Project Vision and Objectives</h1>
+
+    <h2>Vision Statement</h2>
+    <div class="feature-box">
+        <p><strong>To create an efficient, transparent, and accessible internal digital platform that empowers
+                government employees to effectively collect, manage, and respond to citizen feedback, enabling
+                departments to deliver better public services through streamlined internal processes.</strong></p>
+    </div>
+
+    <h2>Primary Objectives</h2>
+    <ul>
+        <li><strong>Internal Process Enhancement:</strong> Provide government employees with efficient tools to record
+            and manage citizen feedback received through various channels</li>
+        <li><strong>Operational Efficiency:</strong> Streamline the feedback collection and management process for
+            government staff and officials</li>
+        <li><strong>Data-Driven Governance:</strong> Enable evidence-based decision making through comprehensive
+            feedback analytics for internal use</li>
+        <li><strong>Internal Transparency:</strong> Ensure clear communication and tracking channels between different
+            government departments and levels</li>
+        <li><strong>Service Quality Improvement:</strong> Use systematically collected citizen feedback to continuously
+            enhance public service delivery</li>
+    </ul>
+
+    <h1 id="system-overview">System Overview</h1>
+
+    <p>The CG Portal Feedback System is a comprehensive digital platform that consists of multiple interconnected
+        components working together to provide a seamless experience for both citizens and government officials.</p>
+
+    <h2>Core Components</h2>
+
+    <div class="benefits-grid">
+        <div class="benefit-card">
+            <h4>📞 Call Center Interface</h4>
+            <p>Specialized interface for call center executives to efficiently record citizen feedback received through
+                phone calls</p>
+        </div>
+        <div class="benefit-card">
+            <h4>💼 Executive Dashboard</h4>
+            <p>A comprehensive interface for government executives to record and manage feedback from various sources
+            </p>
+        </div>
+        <div class="benefit-card">
+            <h4>📊 Administrative Dashboard</h4>
+            <p>A comprehensive management system for senior officials to oversee operations and monitor department
+                performance</p>
+        </div>
+        <div class="benefit-card">
+            <h4>🏢 Department Management</h4>
+            <p>Centralized system for managing multiple government departments and their feedback processes</p>
+        </div>
+    </div>
+
+    <h2>Target Users</h2>
+    <ul>
+        <li><strong>Call Center Executives:</strong> Government staff responsible for receiving and recording citizen
+            feedback through phone calls</li>
+        <li><strong>Government Executives:</strong> Officials who interact with citizens and need to document feedback
+            from various sources</li>
+        <li><strong>Administrative Officials:</strong> Senior government officials overseeing feedback management
+            operations and department performance</li>
+        <li><strong>Department Heads:</strong> Leaders of various government departments monitoring service quality and
+            citizen satisfaction</li>
+        <li><strong>System Administrators:</strong> IT staff responsible for managing user accounts and system
+            operations</li>
+    </ul>
+
+    <h1 id="key-features">Key Features and Capabilities</h1>
+
+    <h2>Citizen Feedback Collection</h2>
+    <div class="feature-box">
+        <p>The system provides government employees with tools to efficiently record citizen feedback from multiple
+            channels:</p>
+        <ul>
+            <li><strong>Call Center Integration:</strong> Streamlined interface for recording feedback received through
+                government helplines and phone calls</li>
+            <li><strong>In-Person Feedback Recording:</strong> Tools for government staff to document feedback received
+                during citizen visits to offices</li>
+            <li><strong>Multi-Department Support:</strong> Feedback can be categorized and routed to appropriate
+                departments (Health, Finance, Tax, etc.)</li>
+            <li><strong>Flexible Feedback Types:</strong> Support for various types of feedback including satisfaction
+                ratings, complaints, suggestions, and service requests</li>
+        </ul>
+    </div>
+
+    <h2>Advanced Administrative Dashboard</h2>
+    <p>The administrative interface provides comprehensive tools for managing the entire feedback ecosystem:</p>
+    <ul>
+        <li><strong>Real-time Statistics:</strong> Live dashboard showing feedback volumes, satisfaction rates, and
+            department performance</li>
+        <li><strong>Status Management:</strong> Tools to track and update the status of feedback from submission to
+            resolution</li>
+        <li><strong>Search and Filter:</strong> Advanced search capabilities to quickly locate specific feedback entries
+        </li>
+        <li><strong>User Management:</strong> Complete system for managing user accounts and access permissions</li>
+        <li><strong>Department Administration:</strong> Tools for adding, editing, and managing government departments
+        </li>
+    </ul>
+
+    <h2>Professional Reporting System</h2>
+    <div class="highlight">
+        <p><strong>One of the standout features of the system is its comprehensive reporting capabilities:</strong></p>
+    </div>
+    <ul>
+        <li><strong>PDF Export Functionality:</strong> Generate professional PDF reports with government branding</li>
+        <li><strong>Department-wise Reports:</strong> Create specific reports for individual departments</li>
+        <li><strong>Comprehensive Analytics:</strong> Detailed statistics including satisfaction rates, resolution
+            times, and trend analysis</li>
+        <li><strong>Executive Summary Reports:</strong> High-level overview reports for senior management</li>
+        <li><strong>Scheduled Reporting:</strong> Automated generation of periodic reports</li>
+    </ul>
+
+    <h2>Multi-language Support</h2>
+    <p>Recognizing the linguistic diversity of Chhattisgarh and the need for government employees to work efficiently,
+        the system includes:</p>
+    <ul>
+        <li><strong>Hindi Language Support:</strong> Complete interface available in Hindi for local government staff
+        </li>
+        <li><strong>English Interface:</strong> Professional English interface for official documentation and reporting
+        </li>
+        <li><strong>Dynamic Language Switching:</strong> Government employees can switch between languages seamlessly
+            based on their preference</li>
+        <li><strong>Localized Content:</strong> All system messages and labels available in both languages for better
+            usability</li>
+    </ul>
+
+    <h1 id="benefits">Benefits and Impact</h1>
+
+    <div class="benefits-grid">
+        <div class="benefit-card">
+            <h4>� For Call Center Staff</h4>
+            <ul>
+                <li><strong>Efficient Recording:</strong> Quick and easy tools to record citizen feedback during phone
+                    calls</li>
+                <li><strong>Standardized Process:</strong> Consistent format for documenting all types of citizen
+                    interactions</li>
+                <li><strong>Real-time Updates:</strong> Instant recording and status tracking of feedback</li>
+                <li><strong>Performance Tracking:</strong> Monitor call handling efficiency and feedback resolution
+                    rates</li>
+            </ul>
+        </div>
+
+        <div class="benefit-card">
+            <h4>👥 For Government Employees</h4>
+            <ul>
+                <li><strong>Streamlined Workflow:</strong> Organized system for managing citizen interactions and
+                    feedback</li>
+                <li><strong>Better Documentation:</strong> Comprehensive records of all citizen feedback and responses
+                </li>
+                <li><strong>Quick Access:</strong> Easy retrieval of citizen feedback history and department responses
+                </li>
+                <li><strong>Professional Tools:</strong> Modern interface that enhances productivity and accuracy</li>
+            </ul>
+        </div>
+
+        <div class="benefit-card">
+            <h4>🏢 For Government Departments</h4>
+            <ul>
+                <li><strong>Operational Efficiency:</strong> Reduced manual work and streamlined feedback management
+                    processes</li>
+                <li><strong>Data-Driven Insights:</strong> Access to comprehensive analytics for informed
+                    decision-making</li>
+                <li><strong>Performance Monitoring:</strong> Real-time tracking of department performance and citizen
+                    satisfaction</li>
+                <li><strong>Resource Optimization:</strong> Better allocation of resources based on systematic feedback
+                    analysis</li>
+            </ul>
+        </div>
+    </div>
+
+    <h1 id="conclusion">Conclusion</h1>
+
+    <div class="highlight">
+        <p><strong>The CG Portal Feedback System represents a significant milestone in the Government of Chhattisgarh's
+                journey towards digital governance and citizen-centric service delivery.</strong></p>
+    </div>
+
+    <p>By providing government employees with a comprehensive, user-friendly platform for feedback collection and
+        management, the system enhances internal efficiency while ensuring better service delivery to citizens. The
+        system's robust feature set, including multi-language support, advanced reporting capabilities, and
+        comprehensive administrative tools, positions it as a model for other state governments seeking to improve their
+        internal feedback management processes.</p>
+
+    <p>Through this digital transformation initiative, the Government of Chhattisgarh demonstrates its commitment to
+        transparency, accountability, and continuous improvement in public service delivery through efficient internal
+        systems. The CG Portal Feedback System is not just an internal tool; it is a bridge that helps government
+        employees better serve citizens, fostering improved communication, systematic documentation, and ultimately,
+        better governance for all citizens of Chhattisgarh.</p>
+
+    <div class="footer">
+        <p><strong>Government of Chhattisgarh</strong><br>
+            Digital Transformation Initiative<br>
+            CG Portal Feedback System Project Report<br>
+            <em>Building a Digital Future for Better Governance</em>
+        </p>
+    </div>
+</body>
+
+</html>
