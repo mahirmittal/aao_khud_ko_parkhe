@@ -1,7 +1,7 @@
 const { MongoClient } = require('mongodb')
 
 // MongoDB connection URI
-const MONGODB_URI = 'mongodb://admin:password123@localhost:27017/cg_portal_feedback?authSource=admin'
+const MONGODB_URI = 'mongodb://localhost:27017/cg_portal_feedback'
 
 async function seedUsers() {
     const client = new MongoClient(MONGODB_URI)
