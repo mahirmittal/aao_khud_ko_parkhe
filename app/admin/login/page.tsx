@@ -61,7 +61,7 @@ export default function AdminLoginPage() {
     return (
         <div className="min-h-screen bg-gradient-to-br from-orange-100 via-green-50 to-blue-50">
             {/* Government Header */}
-            <header className="bg-gradient-to-r from-orange-400 via-orange-500 to-green-500 py-4">
+            {/* <header className="bg-gradient-to-r from-orange-400 via-orange-500 to-green-500 py-4">
                 <div className="container mx-auto px-4">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-4">
@@ -170,7 +170,7 @@ export default function AdminLoginPage() {
                         </CardContent>
                     </Card>
                 </div>
-            </div>
+            </div> */}
         </div>
     )
 }

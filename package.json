@@ -11,7 +11,11 @@
     "docker:prod": "docker-compose up -d",
     "docker:prod:stop": "docker-compose down",
     "docker:build": "docker-compose build",
-    "docker:logs": "docker-compose logs -f"
+    "docker:logs": "docker-compose logs -f",
+    "seed": "node scripts/seed-users-correct.js",
+    "seed:production": "NODE_ENV=production node scripts/seed-users-correct.js",
+    "db:setup": "node scripts/seed-users-correct.js",
+    "db:test": "node scripts/test-db.js"
   },
   "resolutions": {
     "date-fns": "3.6.0"
