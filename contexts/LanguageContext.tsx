@@ -48,9 +48,9 @@ const translations = {
     "home.step2Admin": "Review all feedback submitted by call Executives",
     "home.step3Admin": "Monitor satisfaction levels and service quality",
     "home.step4Admin": "Update feedback status and take corrective actions",
-    "home.govChhattisgarh": "Government of Chhattisgarh",
+    "home.govChhattisgarh": "District Administration Raipur",
     "home.callCenterSystem": "Call Center Management System",
-    "home.copyright": "© 2024 Government of Chhattisgarh. All rights reserved.",
+    "home.copyright": "© 2025 District Administration Raipur. All rights reserved.",
     "home.internalUse": "Internal Use Only - Authorized Personnel",
 
     // Login Pages
@@ -172,9 +172,9 @@ const translations = {
     "home.step2Admin": "कॉल कार्यकारियों द्वारा जमा किए गए सभी फीडबैक की समीक्षा करें",
     "home.step3Admin": "संतुष्टि स्तर और सेवा गुणवत्ता की निगरानी करें",
     "home.step4Admin": "फीडबैक स्थिति अपडेट करें और सुधारात्मक कार्रवाई करें",
-    "home.govChhattisgarh": "छत्तीसगढ़ सरकार",
+    "home.govChhattisgarh": "जिला प्रशासन, रायपुर",
     "home.callCenterSystem": "कॉल सेंटर प्रबंधन प्रणाली",
-    "home.copyright": "© 2024 छत्तीसगढ़ सरकार। सभी अधिकार सुरक्षित।",
+    "home.copyright": "© 2025 जिला प्रशासन, रायपुर। सभी अधिकार सुरक्षित।",
     "home.internalUse": "केवल आंतरिक उपयोग - अधिकृत कर्मचारी",
 
     // Login Pages

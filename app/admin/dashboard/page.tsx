@@ -32,10 +32,12 @@ import {
   Trash2,
   Download,
   FileText,
+  Building2,
 } from "lucide-react"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { LanguageSwitcher } from "@/components/LanguageSwitcher"
-import { exportFeedbackToPDF, exportDepartmentSummary } from "@/lib/pdfExport"
+import { exportToPDF, ExportFilters } from "@/lib/enhancedExport"
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend, BarChart, Bar, XAxis, YAxis, CartesianGrid } from "recharts"
 
 interface Feedback {
   id: string
@@ -62,12 +64,11 @@ interface User {
 }
 
 interface Department {
-  id: string
-  deptName: string
-  deptEmail: string
-  deptContactNo: string
-  createdAt: string
-  updatedAt: string
+  _id: string
+  name: string
+  description: string
+  createdAt?: string
+  updatedAt?: string
 }
 
 export default function AdminDashboard() {
@@ -80,6 +81,13 @@ export default function AdminDashboard() {
   const [editingFeedback, setEditingFeedback] = useState<Feedback | null>(null)
   const [adminUsername, setAdminUsername] = useState("")
   const [activeTab, setActiveTab] = useState("feedback")
+
+  // Enhanced Export states
+  const [exportFilters, setExportFilters] = useState<ExportFilters>({
+    department: 'all',
+    satisfactionOption: 'all',
+    dateRange: 'alltime'
+  })
 
   // User management states
   const [users, setUsers] = useState<User[]>([])
@@ -97,13 +105,12 @@ export default function AdminDashboard() {
   const [editingDepartment, setEditingDepartment] = useState<Department | null>(null)
   const [showAddDepartment, setShowAddDepartment] = useState(false)
   const [newDepartment, setNewDepartment] = useState({
-    deptName: "",
-    deptEmail: "",
-    deptContactNo: ""
+    name: "",
+    description: ""
   })
 
   // PDF Export states
-  const [selectedExportDepartment, setSelectedExportDepartment] = useState("All Departments")
+
 
   const router = useRouter()
 
@@ -131,9 +138,9 @@ export default function AdminDashboard() {
     if (searchTerm) {
       filtered = filtered.filter(
         (feedback) =>
-          feedback.callId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          feedback.citizenMobile.includes(searchTerm) ||
-          feedback.description.toLowerCase().includes(searchTerm.toLowerCase()),
+          (feedback.callId?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+          (feedback.citizenMobile || "").includes(searchTerm) ||
+          (feedback.description?.toLowerCase() || "").includes(searchTerm.toLowerCase()),
       )
     }
 
@@ -149,10 +156,14 @@ export default function AdminDashboard() {
       const response = await fetch("/api/feedback")
       if (response.ok) {
         const data = await response.json()
-        setFeedbacks(data)
+        setFeedbacks(Array.isArray(data) ? data : [])
+      } else {
+        console.error("Failed to fetch feedbacks")
+        setFeedbacks([])
       }
     } catch (error) {
       console.error("Error fetching feedbacks:", error)
+      setFeedbacks([])
     }
     setLoading(false)
   }
@@ -189,10 +200,14 @@ export default function AdminDashboard() {
       const response = await fetch("/api/users")
       if (response.ok) {
         const data = await response.json()
-        setUsers(data)
+        setUsers(Array.isArray(data) ? data : [])
+      } else {
+        console.error("Failed to fetch users")
+        setUsers([])
       }
     } catch (error) {
       console.error("Error fetching users:", error)
+      setUsers([])
     }
   }
 
@@ -202,10 +217,14 @@ export default function AdminDashboard() {
       const response = await fetch("/api/departments")
       if (response.ok) {
         const data = await response.json()
-        setDepartments(data)
+        setDepartments(Array.isArray(data) ? data : [])
+      } else {
+        console.error("Failed to fetch departments")
+        setDepartments([])
       }
     } catch (error) {
       console.error("Error fetching departments:", error)
+      setDepartments([])
     }
   }
 
@@ -295,9 +314,8 @@ export default function AdminDashboard() {
         fetchDepartments()
         setShowAddDepartment(false)
         setNewDepartment({
-          deptName: "",
-          deptEmail: "",
-          deptContactNo: ""
+          name: "",
+          description: ""
         })
         alert("Department created successfully!")
       } else {
@@ -309,19 +327,35 @@ export default function AdminDashboard() {
     }
   }
 
+  const handleEditDepartment = (department: Department) => {
+    setEditingDepartment(department)
+    setNewDepartment({
+      name: department.name,
+      description: department.description
+    })
+    setShowAddDepartment(true)
+  }
+
+  const handleUserSubmit = () => {
+    if (editingUser) {
+      handleUpdateUser(editingUser.id, newUser as User)
+    } else {
+      handleAddUser()
+    }
+  }
+
   const handleUpdateDepartment = async () => {
     if (!editingDepartment) return
 
     try {
-      const response = await fetch(`/api/departments/${editingDepartment.id}`, {
+      const response = await fetch(`/api/departments/${editingDepartment._id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          deptName: editingDepartment.deptName,
-          deptEmail: editingDepartment.deptEmail,
-          deptContactNo: editingDepartment.deptContactNo,
+          name: newDepartment.name,
+          description: newDepartment.description,
         }),
       })
 
@@ -361,58 +395,32 @@ export default function AdminDashboard() {
     }
   }
 
-  // PDF Export Functions
-  const handleExportDepartmentSummary = () => {
-    exportDepartmentSummary(feedbacks)
+
+
+
+
+  // Enhanced Export Functions
+  const handleEnhancedPDFExport = () => {
+    const title = `Enhanced Feedback Report - ${exportFilters.department === 'all' ? 'All Departments' : exportFilters.department}`
+    exportToPDF(feedbacks, exportFilters, title)
   }
 
-  // Dynamic export functions based on dropdown selection
-  const handleDynamicExportAllFeedbacks = () => {
-    if (selectedExportDepartment === "All Departments") {
-      exportFeedbackToPDF(filteredFeedbacks, 'All Departments', 'Complete Feedback Report')
-    } else {
-      const departmentFeedbacks = feedbacks.filter(feedback =>
-        feedback.department === selectedExportDepartment
-      )
-      exportFeedbackToPDF(departmentFeedbacks, selectedExportDepartment, `${selectedExportDepartment} Feedback Report`)
-    }
-  }
-
-  const handleDynamicExportSatisfied = () => {
-    if (selectedExportDepartment === "All Departments") {
-      const satisfiedFeedbacks = feedbacks.filter(feedback => feedback.satisfaction === 'satisfied')
-      exportFeedbackToPDF(satisfiedFeedbacks, 'All Departments', 'Satisfied Feedback Report')
-    } else {
-      const departmentSatisfiedFeedbacks = feedbacks.filter(feedback =>
-        feedback.department === selectedExportDepartment && feedback.satisfaction === 'satisfied'
-      )
-      exportFeedbackToPDF(departmentSatisfiedFeedbacks, selectedExportDepartment, `${selectedExportDepartment} - Satisfied Feedback Report`)
-    }
-  }
-
-  const handleDynamicExportNotSatisfied = () => {
-    if (selectedExportDepartment === "All Departments") {
-      const notSatisfiedFeedbacks = feedbacks.filter(feedback =>
-        feedback.satisfaction !== 'satisfied'
-      )
-      exportFeedbackToPDF(notSatisfiedFeedbacks, 'All Departments', 'Not Satisfied Feedback Report')
-    } else {
-      const departmentNotSatisfiedFeedbacks = feedbacks.filter(feedback =>
-        feedback.department === selectedExportDepartment && feedback.satisfaction !== 'satisfied'
-      )
-      exportFeedbackToPDF(departmentNotSatisfiedFeedbacks, selectedExportDepartment, `${selectedExportDepartment} - Not Satisfied Feedback Report`)
-    }
+  const updateExportFilter = (key: keyof ExportFilters, value: string) => {
+    setExportFilters(prev => ({
+      ...prev,
+      [key]: value
+    }))
   }
 
   const stats = {
-    total: feedbacks.length,
-    satisfied: feedbacks.filter((f) => f.satisfaction === "satisfied").length,
-    notSatisfied: feedbacks.filter((f) => f.satisfaction === "not-satisfied").length,
-    mobileMissing: feedbacks.filter((f) => f.satisfaction === "mobile-missing").length,
-    numberIncorrect: feedbacks.filter((f) => f.satisfaction === "number-incorrect").length,
-    callNotPicked: feedbacks.filter((f) => f.satisfaction === "call-not-picked").length,
-    personNotExist: feedbacks.filter((f) => f.satisfaction === "person-not-exist").length,
-    pending: feedbacks.filter((f) => f.status === "pending").length,
+    total: feedbacks?.length || 0,
+    satisfied: feedbacks?.filter((f) => f?.satisfaction === "satisfied")?.length || 0,
+    notSatisfied: feedbacks?.filter((f) => f?.satisfaction === "not-satisfied")?.length || 0,
+    mobileMissing: feedbacks?.filter((f) => f?.satisfaction === "mobile-missing")?.length || 0,
+    numberIncorrect: feedbacks?.filter((f) => f?.satisfaction === "number-incorrect")?.length || 0,
+    callNotPicked: feedbacks?.filter((f) => f?.satisfaction === "call-not-picked")?.length || 0,
+    personNotExist: feedbacks?.filter((f) => f?.satisfaction === "person-not-exist")?.length || 0,
+    pending: feedbacks?.filter((f) => f?.status === "pending")?.length || 0,
   }
 
   const satisfactionRate = stats.total > 0 ? Math.round((stats.satisfied / stats.total) * 100) : 0
@@ -452,10 +460,10 @@ export default function AdminDashboard() {
               <LanguageSwitcher />
               <div className="hidden md:flex items-center space-x-2 bg-blue-50 px-4 py-2 rounded-lg">
                 <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
-                  <span className="text-white text-sm font-bold">{adminUsername.charAt(0).toUpperCase()}</span>
+                  <span className="text-white text-sm font-bold">{adminUsername?.charAt(0)?.toUpperCase() || 'A'}</span>
                 </div>
                 <span className="text-sm font-medium text-gray-700">
-                  {t("admin.welcome")} {adminUsername}
+                  {t("admin.welcome")} {adminUsername || 'Admin'}
                 </span>
               </div>
               <Button variant="outline" onClick={handleLogout} className="shadow-sm bg-transparent">
@@ -472,7 +480,7 @@ export default function AdminDashboard() {
         <div className="bg-gradient-to-r from-green-600 via-blue-600 to-blue-800 rounded-2xl p-6 mb-8 text-white shadow-xl">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-2xl font-bold mb-2">Welcome back, {adminUsername}!</h2>
+              <h2 className="text-2xl font-bold mb-2">Welcome back, {adminUsername || 'Admin'}!</h2>
               <p className="text-blue-100">Monitor call center performance and manage feedback efficiently</p>
             </div>
             <div className="hidden md:flex items-center space-x-4">
@@ -497,6 +505,16 @@ export default function AdminDashboard() {
             >
               <MessageSquare className="w-4 h-4 mr-2" />
               Feedback Management
+            </button>
+            <button
+              onClick={() => setActiveTab("export")}
+              className={`flex-1 flex items-center justify-center px-4 py-2 rounded-md text-sm font-medium transition-colors ${activeTab === "export"
+                ? "bg-white text-blue-600 shadow-sm"
+                : "text-gray-600 hover:text-gray-900"
+                }`}
+            >
+              <Download className="w-4 h-4 mr-2" />
+              Export Reports
             </button>
             <button
               onClick={() => setActiveTab("users")}
@@ -630,75 +648,218 @@ export default function AdminDashboard() {
               </Card>
             </div>
 
-            {/* PDF Export Section */}
-            <Card className="mb-6 shadow-lg border-0">
+            {/* Quick Stats Overview */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+              <Card className="bg-gradient-to-br from-blue-500 to-blue-600 text-white">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-blue-100 text-sm">Total Feedback</p>
+                      <p className="text-2xl font-bold">{stats.total}</p>
+                    </div>
+                    <MessageSquare className="h-8 w-8 text-blue-200" />
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card className="bg-gradient-to-br from-green-500 to-green-600 text-white">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-green-100 text-sm">Satisfied</p>
+                      <p className="text-2xl font-bold">{stats.satisfied}</p>
+                    </div>
+                    <CheckCircle className="h-8 w-8 text-green-200" />
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card className="bg-gradient-to-br from-red-500 to-red-600 text-white">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-red-100 text-sm">Not Satisfied</p>
+                      <p className="text-2xl font-bold">{stats.notSatisfied}</p>
+                    </div>
+                    <XCircle className="h-8 w-8 text-red-200" />
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card className="bg-gradient-to-br from-yellow-500 to-yellow-600 text-white">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-yellow-100 text-sm">Pending</p>
+                      <p className="text-2xl font-bold">{stats.pending}</p>
+                    </div>
+                    <Clock className="h-8 w-8 text-yellow-200" />
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Analytics Charts Section */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+              {/* Satisfaction Distribution Pie Chart */}
+              <Card className="shadow-lg border-0">
+                <CardHeader className="bg-gradient-to-r from-blue-50 to-green-50 rounded-t-lg border-b border-blue-200">
+                  <div className="flex items-center space-x-2">
+                    <TrendingUp className="w-5 h-5 text-blue-600" />
+                    <CardTitle className="text-xl text-blue-800">Satisfaction Distribution</CardTitle>
+                  </div>
+                  <CardDescription className="text-blue-700">Breakdown of citizen satisfaction levels</CardDescription>
+                </CardHeader>
+                <CardContent className="p-6">
+                  <div className="h-80">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={[
+                            { name: 'Satisfied', value: stats.satisfied, color: '#10B981' },
+                            { name: 'Not Satisfied', value: stats.notSatisfied, color: '#EF4444' },
+                            { name: 'Mobile Missing', value: stats.mobileMissing, color: '#F59E0B' },
+                            { name: 'Number Incorrect', value: stats.numberIncorrect, color: '#8B5CF6' },
+                            { name: 'Call Not Picked', value: stats.callNotPicked, color: '#EC4899' },
+                            { name: 'Person Not Exist', value: stats.personNotExist, color: '#6B7280' }
+                          ].filter(item => item.value > 0)}
+                          cx="50%"
+                          cy="50%"
+                          labelLine={false}
+                          label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                          outerRadius={80}
+                          fill="#8884d8"
+                          dataKey="value"
+                        >
+                          {[
+                            { name: 'Satisfied', value: stats.satisfied, color: '#10B981' },
+                            { name: 'Not Satisfied', value: stats.notSatisfied, color: '#EF4444' },
+                            { name: 'Mobile Missing', value: stats.mobileMissing, color: '#F59E0B' },
+                            { name: 'Number Incorrect', value: stats.numberIncorrect, color: '#8B5CF6' },
+                            { name: 'Call Not Picked', value: stats.callNotPicked, color: '#EC4899' },
+                            { name: 'Person Not Exist', value: stats.personNotExist, color: '#6B7280' }
+                          ].filter(item => item.value > 0).map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.color} />
+                          ))}
+                        </Pie>
+                        <Tooltip formatter={(value, name) => [value, name]} />
+                        <Legend />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Status Distribution Pie Chart */}
+              <Card className="shadow-lg border-0">
+                <CardHeader className="bg-gradient-to-r from-green-50 to-yellow-50 rounded-t-lg border-b border-green-200">
+                  <div className="flex items-center space-x-2">
+                    <CheckCircle className="w-5 h-5 text-green-600" />
+                    <CardTitle className="text-xl text-green-800">Status Distribution</CardTitle>
+                  </div>
+                  <CardDescription className="text-green-700">Breakdown of feedback resolution status</CardDescription>
+                </CardHeader>
+                <CardContent className="p-6">
+                  <div className="h-80">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={[
+                            { name: 'Pending', value: stats.pending, color: '#F59E0B' },
+                            { name: 'Resolved', value: stats.total - stats.pending, color: '#10B981' }
+                          ].filter(item => item.value > 0)}
+                          cx="50%"
+                          cy="50%"
+                          labelLine={false}
+                          label={({ name, percent, value }) => `${name}: ${value} (${(percent * 100).toFixed(0)}%)`}
+                          outerRadius={80}
+                          fill="#8884d8"
+                          dataKey="value"
+                        >
+                          {[
+                            { name: 'Pending', value: stats.pending, color: '#F59E0B' },
+                            { name: 'Resolved', value: stats.total - stats.pending, color: '#10B981' }
+                          ].filter(item => item.value > 0).map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.color} />
+                          ))}
+                        </Pie>
+                        <Tooltip formatter={(value, name) => [value, name]} />
+                        <Legend />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Department-wise Analytics */}
+            <Card className="shadow-lg border-0 mb-8">
               <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-t-lg border-b border-purple-200">
                 <div className="flex items-center space-x-2">
-                  <Download className="w-5 h-5 text-purple-600" />
-                  <CardTitle className="text-xl text-purple-800">Export Reports</CardTitle>
+                  <Building2 className="w-5 h-5 text-purple-600" />
+                  <CardTitle className="text-xl text-purple-800">Department-wise Feedback Analysis</CardTitle>
                 </div>
-                <CardDescription className="text-purple-700">Download feedback data in PDF format by satisfaction level</CardDescription>
+                <CardDescription className="text-purple-700">Feedback distribution across different departments</CardDescription>
               </CardHeader>
               <CardContent className="p-6">
-                {/* Department Selection Dropdown */}
-                <div className="mb-6">
-                  <Label htmlFor="department-select" className="text-sm font-medium text-gray-700 mb-2 block">
-                    Select Department
-                  </Label>
-                  <Select value={selectedExportDepartment} onValueChange={setSelectedExportDepartment}>
-                    <SelectTrigger className="w-full md:w-64 border-gray-300 focus:border-purple-500 focus:ring-purple-500">
-                      <SelectValue placeholder="Choose department" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="All Departments">All Departments</SelectItem>
-                      <SelectItem value="Health Department">Health Department</SelectItem>
-                      <SelectItem value="Finance Department">Finance Department</SelectItem>
-                      <SelectItem value="Tax Department">Tax Department</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* Export Buttons based on selected department */}
-                <div className="mb-6">
-                  <h3 className="text-lg font-semibold text-gray-800 mb-3">
-                    Export {selectedExportDepartment} Reports
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <Button
-                      onClick={handleDynamicExportAllFeedbacks}
-                      className="bg-blue-600 hover:bg-blue-700 text-white flex items-center space-x-2"
+                <div className="h-80">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart
+                      data={(() => {
+                        interface DeptStat {
+                          department: string;
+                          total: number;
+                          satisfied: number;
+                          notSatisfied: number;
+                          pending: number;
+                        }
+                        
+                        const deptStats = new Map<string, DeptStat>();
+                        
+                        feedbacks?.forEach(feedback => {
+                          const dept = feedback.department || 'Unassigned'
+                          if (!deptStats.has(dept)) {
+                            deptStats.set(dept, { department: dept, total: 0, satisfied: 0, notSatisfied: 0, pending: 0 })
+                          }
+                          const stats = deptStats.get(dept)!
+                          stats.total++
+                          if (feedback.satisfaction === 'satisfied') stats.satisfied++
+                          if (feedback.satisfaction === 'not-satisfied') stats.notSatisfied++
+                          if (feedback.status === 'pending') stats.pending++
+                        })
+                        
+                        return Array.from(deptStats.values())
+                      })()}
+                      margin={{
+                        top: 20,
+                        right: 30,
+                        left: 20,
+                        bottom: 5,
+                      }}
                     >
-                      <FileText className="w-4 h-4" />
-                      <span>All Feedbacks</span>
-                    </Button>
-                    <Button
-                      onClick={handleDynamicExportSatisfied}
-                      className="bg-green-600 hover:bg-green-700 text-white flex items-center space-x-2"
-                    >
-                      <FileText className="w-4 h-4" />
-                      <span>Satisfied Only</span>
-                    </Button>
-                    <Button
-                      onClick={handleDynamicExportNotSatisfied}
-                      className="bg-red-600 hover:bg-red-700 text-white flex items-center space-x-2"
-                    >
-                      <FileText className="w-4 h-4" />
-                      <span>Not Satisfied Only</span>
-                    </Button>
-                  </div>
-                </div>
-
-                <div className="mt-6 pt-4 border-t border-gray-200">
-                  <Button
-                    onClick={handleExportDepartmentSummary}
-                    className="bg-purple-600 hover:bg-purple-700 text-white flex items-center space-x-2"
-                  >
-                    <Download className="w-4 h-4" />
-                    <span>Department Summary Report</span>
-                  </Button>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis 
+                        dataKey="department" 
+                        angle={-45}
+                        textAnchor="end"
+                        height={80}
+                        fontSize={12}
+                      />
+                      <YAxis />
+                      <Tooltip />
+                      <Legend />
+                      <Bar dataKey="total" fill="#3B82F6" name="Total Feedback" />
+                      <Bar dataKey="satisfied" fill="#10B981" name="Satisfied" />
+                      <Bar dataKey="notSatisfied" fill="#EF4444" name="Not Satisfied" />
+                      <Bar dataKey="pending" fill="#F59E0B" name="Pending" />
+                    </BarChart>
+                  </ResponsiveContainer>
                 </div>
               </CardContent>
             </Card>
+
+            {/* PDF Export Section */}
+
 
             {/* Filters */}
             <Card className="mb-8 shadow-lg border-0">
@@ -881,6 +1042,434 @@ export default function AdminDashboard() {
               )}
             </div>
           </>
+        )}
+
+        {activeTab === "export" && (
+          <div className="space-y-6">
+            {/* Export Reports Header */}
+            <div className="flex justify-between items-center">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">Export Reports</h2>
+                <p className="text-gray-600">Generate detailed reports with advanced filtering options</p>
+              </div>
+            </div>
+
+            {/* Export Filters Card */}
+            <Card className="shadow-lg border-0">
+              <CardHeader className="bg-gradient-to-r from-blue-50 to-green-50 rounded-t-lg border-b border-blue-200">
+                <div className="flex items-center space-x-2">
+                  <Download className="w-5 h-5 text-blue-600" />
+                  <CardTitle className="text-xl text-blue-800">Report Filters</CardTitle>
+                </div>
+                <CardDescription className="text-blue-700">Configure filters to generate customized reports</CardDescription>
+              </CardHeader>
+              <CardContent className="p-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {/* Department Filter */}
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium text-gray-700">Department</Label>
+                    <Select 
+                      value={exportFilters.department} 
+                      onValueChange={(value) => updateExportFilter('department', value)}
+                    >
+                      <SelectTrigger className="border-gray-300 focus:border-blue-500 focus:ring-blue-500">
+                        <SelectValue placeholder="Select Department" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Departments</SelectItem>
+                        {Array.isArray(departments) && departments.map((dept) => (
+                          <SelectItem key={dept._id} value={dept.name}>
+                            {dept.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Satisfaction Filter */}
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium text-gray-700">Satisfaction Option</Label>
+                    <Select 
+                      value={exportFilters.satisfactionOption} 
+                      onValueChange={(value) => updateExportFilter('satisfactionOption', value)}
+                    >
+                      <SelectTrigger className="border-gray-300 focus:border-blue-500 focus:ring-blue-500">
+                        <SelectValue placeholder="Select Option" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Options</SelectItem>
+                        <SelectItem value="satisfied">Satisfied Only</SelectItem>
+                        <SelectItem value="not-satisfied">Not Satisfied Only</SelectItem>
+                        <SelectItem value="other-issues">Other Issues (Mobile Missing, etc.)</SelectItem>
+                        <SelectItem value="mobile-missing">Mobile Missing</SelectItem>
+                        <SelectItem value="number-incorrect">Number Incorrect</SelectItem>
+                        <SelectItem value="call-not-picked">Call Not Picked</SelectItem>
+                        <SelectItem value="person-not-exist">Person Doesn't Exist</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Date Range Filter */}
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium text-gray-700">Date Range</Label>
+                    <Select 
+                      value={exportFilters.dateRange} 
+                      onValueChange={(value) => updateExportFilter('dateRange', value)}
+                    >
+                      <SelectTrigger className="border-gray-300 focus:border-blue-500 focus:ring-blue-500">
+                        <SelectValue placeholder="Select Date Range" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="today">Today</SelectItem>
+                        <SelectItem value="last7days">Last 7 Days</SelectItem>
+                        <SelectItem value="last30days">Last 30 Days</SelectItem>
+                        <SelectItem value="last6months">Last 6 Months</SelectItem>
+                        <SelectItem value="alltime">All Time</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Export Preview Card */}
+            <Card className="shadow-lg border-0">
+              <CardHeader className="bg-gradient-to-r from-green-50 to-blue-50 rounded-t-lg border-b border-green-200">
+                <div className="flex items-center space-x-2">
+                  <FileText className="w-5 h-5 text-green-600" />
+                  <CardTitle className="text-xl text-green-800">Export Preview</CardTitle>
+                </div>
+                <CardDescription className="text-green-700">Preview of records that will be exported with current filters</CardDescription>
+              </CardHeader>
+              <CardContent className="p-6">
+                {(() => {
+                  const filteredData = (() => {
+                    let filtered = [...feedbacks]
+                    
+                    // Apply department filter
+                    if (exportFilters.department !== 'all') {
+                      filtered = filtered.filter(f => f.department === exportFilters.department)
+                    }
+                    
+                    // Apply satisfaction filter
+                    if (exportFilters.satisfactionOption !== 'all') {
+                      if (exportFilters.satisfactionOption === 'satisfied') {
+                        filtered = filtered.filter(f => f.satisfaction === 'satisfied')
+                      } else if (exportFilters.satisfactionOption === 'not-satisfied') {
+                        filtered = filtered.filter(f => f.satisfaction === 'not-satisfied')
+                      } else if (exportFilters.satisfactionOption === 'other-issues') {
+                        filtered = filtered.filter(f => 
+                          ['mobile-missing', 'number-incorrect', 'call-not-picked', 'person-not-exist'].includes(f.satisfaction)
+                        )
+                      } else {
+                        filtered = filtered.filter(f => f.satisfaction === exportFilters.satisfactionOption)
+                      }
+                    }
+                    
+                    // Apply date filter
+                    if (exportFilters.dateRange !== 'alltime') {
+                      const now = new Date()
+                      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+                      
+                      let startDate: Date
+                      switch (exportFilters.dateRange) {
+                        case 'today':
+                          startDate = today
+                          break
+                        case 'last7days':
+                          startDate = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000)
+                          break
+                        case 'last30days':
+                          startDate = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000)
+                          break
+                        case 'last6months':
+                          startDate = new Date(today.getFullYear(), today.getMonth() - 6, today.getDate())
+                          break
+                        default:
+                          startDate = new Date(0)
+                      }
+                      
+                      filtered = filtered.filter(f => {
+                        const feedbackDate = new Date(f.submittedAt)
+                        return feedbackDate >= startDate
+                      })
+                    }
+                    
+                    return filtered
+                  })()
+
+                  const previewStats = {
+                    total: filteredData.length,
+                    satisfied: filteredData.filter(f => f.satisfaction === 'satisfied').length,
+                    notSatisfied: filteredData.filter(f => f.satisfaction === 'not-satisfied').length,
+                    resolved: filteredData.filter(f => f.status === 'resolved').length,
+                    pending: filteredData.filter(f => f.status === 'pending').length,
+                  }
+
+                  return (
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                        <div className="bg-blue-50 p-4 rounded-lg text-center">
+                          <div className="text-2xl font-bold text-blue-900">{previewStats.total}</div>
+                          <div className="text-sm text-blue-600">Total Records</div>
+                        </div>
+                        <div className="bg-green-50 p-4 rounded-lg text-center">
+                          <div className="text-2xl font-bold text-green-900">{previewStats.satisfied}</div>
+                          <div className="text-sm text-green-600">Satisfied</div>
+                        </div>
+                        <div className="bg-red-50 p-4 rounded-lg text-center">
+                          <div className="text-2xl font-bold text-red-900">{previewStats.notSatisfied}</div>
+                          <div className="text-sm text-red-600">Not Satisfied</div>
+                        </div>
+                        <div className="bg-yellow-50 p-4 rounded-lg text-center">
+                          <div className="text-2xl font-bold text-yellow-900">{previewStats.resolved}</div>
+                          <div className="text-sm text-yellow-600">Resolved</div>
+                        </div>
+                        <div className="bg-orange-50 p-4 rounded-lg text-center">
+                          <div className="text-2xl font-bold text-orange-900">{previewStats.pending}</div>
+                          <div className="text-sm text-orange-600">Pending</div>
+                        </div>
+                      </div>
+                      
+                      <div className="flex justify-center pt-4">
+                        <Button 
+                          onClick={handleEnhancedPDFExport}
+                          className="bg-red-600 hover:bg-red-700 text-white px-8 py-3"
+                          disabled={previewStats.total === 0}
+                        >
+                          <FileText className="w-5 h-5 mr-2" />
+                          Export as PDF ({previewStats.total} records)
+                        </Button>
+                      </div>
+                    </div>
+                  )
+                })()}
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {activeTab === "users" && (
+          <div className="space-y-6">
+            {/* User Management Header */}
+            <div className="flex justify-between items-center">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">User Management</h2>
+                <p className="text-gray-600">Create and manage system users</p>
+              </div>
+              <Button
+                onClick={() => setShowAddUser(true)}
+                className="bg-green-600 hover:bg-green-700"
+              >
+                <UserPlus className="w-4 h-4 mr-2" />
+                Add User
+              </Button>
+            </div>
+
+            {/* Users List */}
+            <Card className="shadow-lg border-0">
+              <CardHeader className="bg-gradient-to-r from-green-50 to-blue-50 rounded-t-lg border-b border-green-200">
+                <div className="flex items-center space-x-2">
+                  <Users className="w-5 h-5 text-green-600" />
+                  <CardTitle className="text-xl text-green-800">System Users</CardTitle>
+                </div>
+                <CardDescription className="text-green-700">Manage user accounts and permissions</CardDescription>
+              </CardHeader>
+              <CardContent className="p-6">
+                <div className="grid gap-4">
+                  {users.map((user) => (
+                    <div key={user.id} className="flex items-center justify-between p-4 border rounded-lg">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                          <Users className="w-5 h-5 text-blue-600" />
+                        </div>
+                        <div>
+                          <p className="font-medium text-gray-900">{user.username}</p>
+                          <p className="text-sm text-gray-500">Type: {user.type}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Badge variant={user.active ? "default" : "secondary"}>
+                          {user.active ? "Active" : "Inactive"}
+                        </Badge>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => {
+                            setEditingUser(user)
+                            setNewUser({
+                              username: user.username,
+                              password: "",
+                              type: user.type,
+                              active: user.active
+                            })
+                          }}
+                        >
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          onClick={() => handleDeleteUser(user.id)}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Add User Dialog */}
+            <Dialog open={showAddUser} onOpenChange={setShowAddUser}>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Add New User</DialogTitle>
+                  <DialogDescription>Create a new system user account</DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="username" className="text-right">Username</Label>
+                    <Input
+                      id="username"
+                      value={newUser.username}
+                      onChange={(e) => setNewUser({...newUser, username: e.target.value})}
+                      className="col-span-3"
+                    />
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="password" className="text-right">Password</Label>
+                    <Input
+                      id="password"
+                      type="password"
+                      value={newUser.password}
+                      onChange={(e) => setNewUser({...newUser, password: e.target.value})}
+                      className="col-span-3"
+                    />
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="type" className="text-right">Type</Label>
+                    <Select
+                      value={newUser.type}
+                      onValueChange={(value) => setNewUser({...newUser, type: value})}
+                    >
+                      <SelectTrigger className="col-span-3">
+                        <SelectValue placeholder="Select user type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="admin">Admin</SelectItem>
+                        <SelectItem value="user">User</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="active" className="text-right">Active</Label>
+                    <Checkbox
+                      id="active"
+                      checked={newUser.active}
+                      onCheckedChange={(checked) => setNewUser({...newUser, active: !!checked})}
+                    />
+                  </div>
+                </div>
+                <div className="flex justify-end space-x-2">
+                  <Button variant="outline" onClick={() => setShowAddUser(false)}>Cancel</Button>
+                  <Button onClick={handleUserSubmit}>
+                    {editingUser ? 'Update' : 'Add'} User
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
+          </div>
+        )}
+
+        {activeTab === "departments" && (
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">Department Management</h2>
+                <p className="text-gray-600">Create and manage departments</p>
+              </div>
+              <Button
+                onClick={() => setShowAddDepartment(true)}
+                className="bg-green-600 hover:bg-green-700"
+              >
+                <Building2 className="w-4 h-4 mr-2" />
+                Add Department
+              </Button>
+            </div>
+
+            {/* Department List */}
+            <Card>
+              <CardContent className="p-6">
+                <div className="space-y-4">
+                  {departments.map((dept) => (
+                    <div key={dept._id} className="flex items-center justify-between p-4 border rounded-lg">
+                      <div>
+                        <h3 className="font-semibold">{dept.name}</h3>
+                        <p className="text-sm text-gray-500">{dept.description}</p>
+                      </div>
+                      <div className="flex space-x-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleEditDepartment(dept)}
+                        >
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleDeleteDepartment(dept._id)}
+                          className="text-red-600 hover:text-red-700"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Add Department Dialog */}
+            <Dialog open={showAddDepartment} onOpenChange={setShowAddDepartment}>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>{editingDepartment ? 'Edit' : 'Add'} Department</DialogTitle>
+                  <DialogDescription>
+                    {editingDepartment ? 'Update' : 'Create a new'} department information
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="dept-name" className="text-right">Name</Label>
+                    <Input
+                      id="dept-name"
+                      value={newDepartment.name}
+                      onChange={(e) => setNewDepartment({...newDepartment, name: e.target.value})}
+                      className="col-span-3"
+                    />
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="dept-description" className="text-right">Description</Label>
+                    <Input
+                      id="dept-description"
+                      value={newDepartment.description}
+                      onChange={(e) => setNewDepartment({...newDepartment, description: e.target.value})}
+                      className="col-span-3"
+                    />
+                  </div>
+                </div>
+                <div className="flex justify-end space-x-2">
+                  <Button variant="outline" onClick={() => setShowAddDepartment(false)}>Cancel</Button>
+                  <Button onClick={editingDepartment ? handleUpdateDepartment : handleAddDepartment}>
+                    {editingDepartment ? 'Update' : 'Add'} Department
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
+          </div>
         )}
 
         {activeTab === "users" && (
@@ -1088,176 +1677,6 @@ export default function AdminDashboard() {
                   </Button>
                   <Button onClick={() => editingUser && handleUpdateUser(editingUser.id, editingUser)}>
                     Update User
-                  </Button>
-                </div>
-              </DialogContent>
-            </Dialog>
-          </div>
-        )}
-
-        {activeTab === "departments" && (
-          <div>
-            <div className="flex justify-between items-center mb-6">
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900">Department Management</h2>
-                <p className="text-gray-600">Manage government departments and their contact information</p>
-              </div>
-              <Dialog open={showAddDepartment} onOpenChange={setShowAddDepartment}>
-                <DialogTrigger asChild>
-                  <Button className="bg-blue-600 hover:bg-blue-700">
-                    <UserPlus className="w-4 h-4 mr-2" />
-                    Add Department
-                  </Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Add New Department</DialogTitle>
-                    <DialogDescription>
-                      Create a new government department with contact details
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div className="space-y-4">
-                    <div>
-                      <Label htmlFor="deptName">Department Name</Label>
-                      <Select
-                        value={newDepartment.deptName}
-                        onValueChange={(value) => setNewDepartment({ ...newDepartment, deptName: value })}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select a department" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="Health Department">Health Department</SelectItem>
-                          <SelectItem value="Finance Department">Finance Department</SelectItem>
-                          <SelectItem value="Tax Department">Tax Department</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <Label htmlFor="deptEmail">Department Email</Label>
-                      <Input
-                        id="deptEmail"
-                        type="email"
-                        value={newDepartment.deptEmail}
-                        onChange={(e) => setNewDepartment({ ...newDepartment, deptEmail: e.target.value })}
-                        placeholder="e.g., health@cg.gov.in"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="deptContactNo">Contact Number</Label>
-                      <Input
-                        id="deptContactNo"
-                        value={newDepartment.deptContactNo}
-                        onChange={(e) => setNewDepartment({ ...newDepartment, deptContactNo: e.target.value })}
-                        placeholder="10-digit contact number"
-                        maxLength={10}
-                      />
-                    </div>
-                  </div>
-                  <div className="flex justify-end space-x-2">
-                    <Button variant="outline" onClick={() => setShowAddDepartment(false)}>
-                      Cancel
-                    </Button>
-                    <Button onClick={handleAddDepartment}>Create Department</Button>
-                  </div>
-                </DialogContent>
-              </Dialog>
-            </div>
-
-            <div className="grid gap-4">
-              {departments.map((dept) => (
-                <Card key={dept.id} className="p-6 hover:shadow-lg transition-shadow">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-4">
-                      <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                        <span className="text-blue-600 font-semibold text-lg">
-                          {dept.deptName.charAt(0).toUpperCase()}
-                        </span>
-                      </div>
-                      <div>
-                        <h3 className="font-semibold text-gray-900">{dept.deptName}</h3>
-                        <p className="text-sm text-gray-600">{dept.deptEmail}</p>
-                        <p className="text-sm text-gray-600">📞 {dept.deptContactNo}</p>
-                        <p className="text-xs text-gray-400">
-                          Created: {new Date(dept.createdAt).toLocaleDateString()}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex space-x-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setEditingDepartment(dept)}
-                      >
-                        <Edit className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleDeleteDepartment(dept.id)}
-                        className="text-red-600 hover:text-red-800"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </div>
-                </Card>
-              ))}
-            </div>
-
-            {/* Edit Department Dialog */}
-            <Dialog open={!!editingDepartment} onOpenChange={() => setEditingDepartment(null)}>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Edit Department</DialogTitle>
-                  <DialogDescription>
-                    Update department information
-                  </DialogDescription>
-                </DialogHeader>
-                {editingDepartment && (
-                  <div className="space-y-4">
-                    <div>
-                      <Label htmlFor="editDeptName">Department Name</Label>
-                      <Select
-                        value={editingDepartment.deptName}
-                        onValueChange={(value) => setEditingDepartment({ ...editingDepartment, deptName: value })}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select a department" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="Health Department">Health Department</SelectItem>
-                          <SelectItem value="Finance Department">Finance Department</SelectItem>
-                          <SelectItem value="Tax Department">Tax Department</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <Label htmlFor="editDeptEmail">Department Email</Label>
-                      <Input
-                        id="editDeptEmail"
-                        type="email"
-                        value={editingDepartment.deptEmail}
-                        onChange={(e) => setEditingDepartment({ ...editingDepartment, deptEmail: e.target.value })}
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="editDeptContactNo">Contact Number</Label>
-                      <Input
-                        id="editDeptContactNo"
-                        value={editingDepartment.deptContactNo}
-                        onChange={(e) => setEditingDepartment({ ...editingDepartment, deptContactNo: e.target.value })}
-                        maxLength={10}
-                      />
-                    </div>
-                  </div>
-                )}
-                <div className="flex justify-end space-x-2">
-                  <Button variant="outline" onClick={() => setEditingDepartment(null)}>
-                    Cancel
-                  </Button>
-                  <Button onClick={handleUpdateDepartment}>
-                    Update Department
                   </Button>
                 </div>
               </DialogContent>

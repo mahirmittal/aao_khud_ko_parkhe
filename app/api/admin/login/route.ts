@@ -14,17 +14,10 @@ export async function POST(request: NextRequest) {
 
     // Connect to MongoDB
     const db = await getDb()
-    
-    // Try to find user in multiple collections with proper schema
-    let admin = await db.collection('users').findOne({ 
-      username: username,
-      type: { $in: ['admin', 'executive'] },
-      active: true
-    })
-    
-    if (!admin) {
-      admin = await db.collection('adminC').findOne({ username })
-    }
+    const adminCollection = db.collection('adminC')
+
+    // Find admin user by username
+    const admin = await adminCollection.findOne({ username })
 
     if (!admin) {
       return NextResponse.json(
@@ -48,9 +41,7 @@ export async function POST(request: NextRequest) {
         message: 'Login successful',
         user: {
           username: admin.username,
-          id: admin._id,
-          type: admin.type || 'admin',
-          active: admin.active
+          id: admin._id
         }
       },
       { status: 200 }

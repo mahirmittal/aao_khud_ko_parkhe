@@ -11,11 +11,7 @@
     "docker:prod": "docker-compose up -d",
     "docker:prod:stop": "docker-compose down",
     "docker:build": "docker-compose build",
-    "docker:logs": "docker-compose logs -f",
-    "seed": "node scripts/seed-users-correct.js",
-    "seed:production": "NODE_ENV=production node scripts/seed-users-correct.js",
-    "db:setup": "node scripts/seed-users-correct.js",
-    "db:test": "node scripts/test-db.js"
+    "docker:logs": "docker-compose logs -f"
   },
   "resolutions": {
     "date-fns": "3.6.0"
@@ -50,6 +46,7 @@
     "@radix-ui/react-toggle-group": "1.1.1",
     "@radix-ui/react-tooltip": "1.1.6",
     "@types/jspdf": "^2.0.0",
+    "@types/xlsx": "^0.0.35",
     "autoprefixer": "^10.4.20",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -74,6 +71,7 @@
     "tailwind-merge": "^2.5.5",
     "tailwindcss-animate": "^1.0.7",
     "vaul": "^0.9.6",
+    "xlsx": "^0.18.5",
     "zod": "^3.24.1"
   },
   "devDependencies": {

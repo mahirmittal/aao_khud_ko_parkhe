@@ -86,7 +86,7 @@ export default function HomePage() {
               />
               <div>
                 <h1 className="text-2xl font-bold text-blue-900">आओ खुद को परखें</h1>
-                <p className="text-sm text-blue-800">छत्तीसगढ़ शासन | GOVERNMENT OF CHHATTISGARH</p>
+                <p className="text-sm text-blue-800">जिला प्रशासन, रायपुर | GOVERNMENT OF CHHATTISGARH</p>
               </div>
             </div>
             <div className="flex items-center space-x-2">
@@ -120,89 +120,11 @@ export default function HomePage() {
         </div>
       </header>
 
-      {/* Government Schemes Ticker */}
-      <div className="bg-green-600 text-white py-2 overflow-hidden">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center space-x-2">
-            <span className="bg-green-700 px-3 py-1 rounded text-sm font-bold">CG GOVERNMENT SCHEMES</span>
-            <div className="flex-1 overflow-hidden">
-              <div className="animate-scroll whitespace-nowrap">
-                <span className="inline-block px-8">
-                  मुख्यमंत्री कन्या विवाह योजना - Financial assistance for girl child marriage
-                </span>
-                <span className="inline-block px-8">राजीव गांधी किसान न्याय योजना - Direct cash transfer to farmers</span>
-                <span className="inline-block px-8">गोधन न्याय योजना - Cow dung procurement scheme</span>
-                <span className="inline-block px-8">सुराजी गांव योजना - Rural development scheme</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* Main Content Area */}
       <div className="container mx-auto px-4 py-6">
         <div className="grid grid-cols-12 gap-6">
-          {/* Left Sidebar - Quick Links */}
-          <div className="col-span-3">
-            <Card className="mb-6">
-              <CardHeader className="bg-green-600 text-white">
-                <CardTitle className="text-lg">Quick Links</CardTitle>
-              </CardHeader>
-              <CardContent className="p-0">
-                <div className="space-y-1">
-                  {[
-                    { name: "Chhattisgarh Government Portal", color: "border-l-green-500" },
-                    { name: "Citizen Services", color: "border-l-blue-500" },
-                    { name: "Online Applications", color: "border-l-orange-500" },
-                    { name: "RTI Portal", color: "border-l-red-500" },
-                    { name: "Employment Portal", color: "border-l-purple-500" },
-                  ].map((link, index) => (
-                    <div
-                      key={index}
-                      className={`p-3 border-l-4 ${link.color} hover:bg-gray-50 cursor-pointer flex items-center justify-between`}
-                    >
-                      <span className="text-sm">{link.name}</span>
-                      <ChevronRight className="w-4 h-4 text-gray-400" />
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Rajdhani Section - Sliding Cards */}
-            <Card className="border-orange-300 overflow-hidden">
-              <div className="relative h-40">
-                {/* Hindi Card */}
-                <div className="absolute inset-0 transition-transform duration-1000 ease-in-out animate-slide-hindi">
-                  <CardHeader className="bg-orange-100 border-b border-orange-300">
-                    <CardTitle className="text-orange-800 text-center">
-                      ज़िला
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="text-center py-6">
-                    <h3 className="text-2xl font-bold text-red-600 mb-1">रायपुर जिला में आपका स्वागत है ||</h3>
-                    <p className="text-sm text-gray-600">राजधानी शहर</p>
-                  </CardContent>
-                </div>
-
-                {/* English Card */}
-                <div className="absolute inset-0 transition-transform duration-1000 ease-in-out animate-slide-english">
-                  <CardHeader className="bg-blue-100 border-b border-blue-300">
-                    <CardTitle className="text-blue-800 text-center">
-                      District
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="text-center ">
-                    <h3 className="text-2xl font-bold  text-blue-600 mb-1">Welcome to District Raipur</h3>
-                   {/* <p className="text-sm text-gray-600">Capital City</p> */}
-                  </CardContent>
-                </div>
-              </div>
-            </Card>
-          </div>
-
           {/* Center Content */}
-          <div className="col-span-6">
+          <div className="col-span-9">
             <div className="">
               {/* <div className="text-center">
                 <h2 className="text-4xl font-bold mb-2">Chhattisgarh</h2>
@@ -216,7 +138,7 @@ export default function HomePage() {
             <Card className="mb-6">
               <CardHeader className="bg-gradient-to-r from-gray-700 to-gray-800 text-white text-center">
                 <CardTitle className="text-lg">Secure Login Portal</CardTitle>
-                <CardDescription className="text-gray-300">Government Officials & Citizens</CardDescription>
+                <CardDescription className="text-gray-300">Government Officials</CardDescription>
               </CardHeader>
               <CardContent className="p-6">
                 <form className="space-y-4" onSubmit={handleLogin}>
@@ -375,57 +297,6 @@ export default function HomePage() {
             </Card>
           </div>
         </div>
-
-        {/* Latest News Section */}
-        <Card className="mt-6">
-          <CardHeader className="bg-gradient-to-r from-red-600 to-orange-600 text-white">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <span className="text-lg">🚨</span>
-                <CardTitle>ताजा समाचार / Latest News</CardTitle>
-                <span className="bg-orange-500 px-2 py-1 rounded text-xs font-bold">BREAKING</span>
-              </div>
-              <div className="flex space-x-2">
-                <Button variant="ghost" size="sm" className="text-white hover:bg-red-700">
-                  ‹
-                </Button>
-                <Button variant="ghost" size="sm" className="text-white hover:bg-red-700">
-                  ›
-                </Button>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent className="p-6">
-            <div className="grid md:grid-cols-3 gap-6">
-              <div className="flex space-x-4">
-                <div className="w-24 h-16 bg-gray-200 rounded flex-shrink-0"></div>
-                <div>
-                  <span className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded">domestic</span>
-                  <p className="text-sm font-medium mt-2">
-                    कांकेर-कोंडागांव समेत 7 जिलों में भारी बारिश का अलर्ट:नारायणपुर से बिजली गिरेगी
-                  </p>
-                  <p className="text-xs text-gray-500 mt-1">19 जुलाई, 02:48 am</p>
-                </div>
-              </div>
-              <div className="flex space-x-4">
-                <div className="w-24 h-16 bg-gray-200 rounded flex-shrink-0"></div>
-                <div>
-                  <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">government</span>
-                  <p className="text-sm font-medium mt-2">मुख्यमंत्री ने किया नई योजनाओं का शुभारंभ, किसानों को मिलेगा फायदा</p>
-                  <p className="text-xs text-gray-500 mt-1">18 जुलाई, 06:30 pm</p>
-                </div>
-              </div>
-              <div className="flex space-x-4">
-                <div className="w-24 h-16 bg-gray-200 rounded flex-shrink-0"></div>
-                <div>
-                  <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">development</span>
-                  <p className="text-sm font-medium mt-2">डिजिटल इंडिया मिशन के तहत नई सुविधाओं का विस्तार</p>
-                  <p className="text-xs text-gray-500 mt-1">18 जुलाई, 04:15 pm</p>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
       </div>
 
       {/* Footer */}
@@ -444,6 +315,21 @@ export default function HomePage() {
           </div>
           <p>{t("home.copyright")}</p>
           <p className="text-sm text-gray-400 mt-2">{t("home.internalUse")}</p>
+          <div className="mt-4 pt-4 border-t border-gray-600">
+            <div className="flex items-center justify-center">
+              <a 
+                href="https://www.linkedin.com/in/mahir-mittal-12a32a280?lipi=urn%3Ali%3Apage%3Ad_flagship3_profile_view_base_contact_details%3BP4PAg6OxR9qsEwzfS4PIyQ%3D%3D" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex items-center space-x-2 text-blue-400 hover:text-blue-300 transition-colors"
+              >
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                </svg>
+                <span className="text-sm">LinkedIn</span>
+              </a>
+            </div>
+          </div>
         </div>
       </footer>
     </div>
