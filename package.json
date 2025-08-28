@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "build": "next build",
-    "dev": "next dev",
+    "dev": "nodemon",
+    "dev:normal": "next dev",
     "lint": "next lint",
     "docker:dev": "docker-compose -f docker-compose.dev.yml up -d",
     "docker:dev:stop": "docker-compose -f docker-compose.dev.yml down",

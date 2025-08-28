@@ -70,10 +70,10 @@ export default function HomePage() {
     <div className="min-h-screen bg-gray-100">
       {/* Official Header */}
       <header className="bg-gradient-to-r from-orange-400 via-orange-500 to-green-500">
-        <div className="container mx-auto px-4 py-4">
+        <div className="container mx-auto px-2 sm:px-4 py-3 sm:py-4">
           {/* Top Header Row */}
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center space-x-4">
+          <div className="flex items-center justify-between mb-2 sm:mb-4">
+            <div className="flex items-center space-x-2 sm:space-x-4">
               {/* <img
                 src="https://cgstate.gov.in/user-assets/images/logo-cg.png"
                 alt="Government of India"
@@ -82,20 +82,16 @@ export default function HomePage() {
               <img
                 src="https://cgstate.gov.in/user-assets/images/logo-cg.png"
                 alt="Chhattisgarh Government"
-                className="w-16 h-16 object-contain"
+                className="w-12 h-12 sm:w-16 sm:h-16 object-contain"
               />
               <div>
-                <h1 className="text-2xl font-bold text-blue-900">आओ खुद को परखें</h1>
-                <p className="text-sm text-blue-800">जिला प्रशासन, रायपुर | GOVERNMENT OF CHHATTISGARH</p>
+                <h1 className="text-lg sm:text-2xl font-bold text-blue-900">आओ खुद को परखें</h1>
+                <p className="text-xs sm:text-sm text-blue-800 hidden sm:block">जिला प्रशासन, रायपुर | GOVERNMENT OF CHHATTISGARH</p>
+                <p className="text-xs text-blue-800 sm:hidden">रायपुर | GOVT OF CG</p>
               </div>
             </div>
             <div className="flex items-center space-x-2">
               <LanguageSwitcher />
-              <Button className="bg-green-600 hover:bg-green-700 text-white px-6">
-                Apply Online
-                <br />
-                cgstate.gov.in
-              </Button>
             </div>
           </div>
 
@@ -121,10 +117,10 @@ export default function HomePage() {
       </header>
 
       {/* Main Content Area */}
-      <div className="container mx-auto px-4 py-6">
-        <div className="grid grid-cols-12 gap-6">
+      <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-6">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6">
           {/* Center Content */}
-          <div className="col-span-9">
+          <div className="lg:col-span-9">
             <div className="">
               {/* <div className="text-center">
                 <h2 className="text-4xl font-bold mb-2">Chhattisgarh</h2>
@@ -135,12 +131,12 @@ export default function HomePage() {
             </div>
 
             {/* Secure Login Portal */}
-            <Card className="mb-6">
+            <Card className="mb-4 lg:mb-6">
               <CardHeader className="bg-gradient-to-r from-gray-700 to-gray-800 text-white text-center">
                 <CardTitle className="text-lg">Secure Login Portal</CardTitle>
                 <CardDescription className="text-gray-300">Government Officials</CardDescription>
               </CardHeader>
-              <CardContent className="p-6">
+              <CardContent className="p-4 sm:p-6">
                 <form className="space-y-4" onSubmit={handleLogin}>
                   <div>
                     <Label htmlFor="userType" className="text-sm font-medium">
@@ -206,17 +202,18 @@ export default function HomePage() {
                     Forgot Password?
                   </Link>
                 </div>
-                <div className="mt-4 text-center text-xs text-gray-500">For technical support: 0771-2234567</div>
               </CardContent>
             </Card>
+          </div>
 
-            {/* How to Use Section */}
+          {/* Right Sidebar - How to Use Section */}
+          <div className="lg:col-span-3">
             <Card>
               <CardHeader>
-                <CardTitle className="text-xl">{t("home.howToUse")}</CardTitle>
+                <CardTitle className="text-lg sm:text-xl">{t("home.howToUse")}</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid md:grid-cols-2 gap-6">
+                <div className="space-y-4 sm:space-y-6">
                   <div>
                     <h4 className="font-semibold text-blue-600 mb-3">{t("home.forExecutives")}</h4>
                     <div className="space-y-2 text-sm">
@@ -262,35 +259,6 @@ export default function HomePage() {
                         <p>{t("home.step3Admin")}</p>
                       </div>
                     </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Right Sidebar - Additional Information */}
-          <div className="col-span-3">
-            <Card className="mb-6">
-              <CardHeader className="bg-gradient-to-r from-blue-600 to-blue-800 text-white text-center">
-                <CardTitle className="text-lg">Important Information</CardTitle>
-              </CardHeader>
-              <CardContent className="p-4">
-                <div className="space-y-4">
-                  <div className="border-l-4 border-blue-500 pl-3">
-                    <h4 className="font-semibold">Helpline Numbers</h4>
-                    <p className="text-sm text-gray-600">Emergency: 112</p>
-                    <p className="text-sm text-gray-600">Police: 100</p>
-                    <p className="text-sm text-gray-600">Ambulance: 108</p>
-                  </div>
-                  <div className="border-l-4 border-green-500 pl-3">
-                    <h4 className="font-semibold">Working Hours</h4>
-                    <p className="text-sm text-gray-600">Mon-Fri: 10:00 AM - 5:30 PM</p>
-                    <p className="text-sm text-gray-600">Sat: 10:00 AM - 2:00 PM</p>
-                  </div>
-                  <div className="border-l-4 border-orange-500 pl-3">
-                    <h4 className="font-semibold">Contact Us</h4>
-                    <p className="text-sm text-gray-600">Email: support@cg.gov.in</p>
-                    <p className="text-sm text-gray-600">Phone: 0771-2234567</p>
                   </div>
                 </div>
               </CardContent>

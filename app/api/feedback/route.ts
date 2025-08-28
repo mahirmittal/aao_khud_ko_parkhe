@@ -24,22 +24,11 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
+    console.log('Received feedback data:', body)
     const db = await getDb()
 
     // Accept all fields as optional
     const { callId, citizenMobile, citizenName, queryType, department, satisfaction, description, submittedBy, status } = body
-
-    // Validate department value
-    const validDepartments = [
-      "Health Department",
-      "Finance Department",
-      "Tax Department"
-    ];
-    if (department && !validDepartments.includes(department)) {
-      return NextResponse.json({
-        error: `department must be one of: ${validDepartments.join(", ")}`
-      }, { status: 400 })
-    }
 
     // Validate satisfaction value
     const validSatisfactions = [
@@ -50,10 +39,30 @@ export async function POST(request: NextRequest) {
       "call-not-picked",
       "person-not-exist"
     ];
-    if (!validSatisfactions.includes(satisfaction)) {
+    
+    console.log('Satisfaction value:', satisfaction)
+    console.log('Valid satisfactions:', validSatisfactions)
+    
+    if (!satisfaction || !validSatisfactions.includes(satisfaction)) {
+      console.log('Satisfaction validation failed')
       return NextResponse.json({
-        error: `satisfaction must be one of: ${validSatisfactions.join(", ")}`
+        error: `satisfaction must be one of: ${validSatisfactions.join(", ")}. Received: ${satisfaction}`
       }, { status: 400 })
+    }
+
+    // Validate department value against actual departments in database (if provided)
+    if (department) {
+      const existingDepartment = await db.collection('departments').findOne({
+        name: department
+      })
+      if (!existingDepartment) {
+        const departments = await db.collection('departments').find({}).toArray()
+        const departmentNames = departments.map(dept => dept.name)
+        console.log('Department validation failed. Available:', departmentNames)
+        return NextResponse.json({
+          error: `Department not found. Available departments: ${departmentNames.join(", ")}`
+        }, { status: 400 })
+      }
     }
 
     // Create properly structured feedback document

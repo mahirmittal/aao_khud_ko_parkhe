@@ -1,0 +1,22 @@
+{
+  "watch": [
+    "app",
+    "lib",
+    "components",
+    "contexts",
+    "hooks"
+  ],
+  "ext": "js,ts,tsx,json",
+  "ignore": [
+    "node_modules",
+    ".next",
+    "dist",
+    "*.test.*",
+    "*.spec.*"
+  ],
+  "exec": "next dev",
+  "env": {
+    "NODE_ENV": "development"
+  },
+  "delay": 1000
+}

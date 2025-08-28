@@ -27,6 +27,7 @@ export default function FeedbackPage() {
   const [loading, setLoading] = useState(false)
   const [ExecutiveUsername, setExecutiveUsername] = useState("")
   const [ExecutiveType, setExecutiveType] = useState("")
+  const [departments, setDepartments] = useState<{ _id: string; name: string; description: string }[]>([])
   const router = useRouter()
 
   useEffect(() => {
@@ -45,7 +46,24 @@ export default function FeedbackPage() {
     if (userType) {
       setExecutiveType(userType)
     }
+
+    // Fetch departments
+    fetchDepartments()
   }, [router])
+
+  const fetchDepartments = async () => {
+    try {
+      const response = await fetch('/api/departments')
+      if (response.ok) {
+        const data = await response.json()
+        setDepartments(data)
+      } else {
+        console.error('Failed to fetch departments')
+      }
+    } catch (error) {
+      console.error('Error fetching departments:', error)
+    }
+  }
 
   const handleLogout = () => {
     localStorage.removeItem("executive1LoggedIn")
@@ -131,51 +149,56 @@ export default function FeedbackPage() {
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-green-50 to-blue-50">
       {/* Government Header */}
       <header className="bg-gradient-to-r from-orange-400 via-orange-500 to-green-500 shadow-lg">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <Link href="/" className="flex items-center space-x-4">
+        <div className="container mx-auto px-2 sm:px-4 py-3 sm:py-4">
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <div className="flex items-center space-x-2 sm:space-x-4">
+              <Link href="/" className="flex items-center space-x-2 sm:space-x-4">
                 <img
                   src="https://cgstate.gov.in/user-assets/images/logo-cg.png"
                   alt="Chhattisgarh Government"
-                  className="w-12 h-12 object-contain"
+                  className="w-10 h-10 sm:w-12 sm:h-12 object-contain"
                 />
                 <div>
-                  <h1 className="text-xl font-bold text-blue-900">{t("feedback.title")}</h1>
-                  <p className="text-sm text-blue-800">{t("feedback.subtitle")}</p>
+                  <h1 className="text-lg sm:text-xl font-bold text-blue-900">{t("feedback.title")}</h1>
+                  <p className="text-xs sm:text-sm text-blue-800 hidden sm:block">{t("feedback.subtitle")}</p>
                 </div>
               </Link>
             </div>
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2 sm:space-x-4">
               <LanguageSwitcher />
-              <div className="flex items-center space-x-2 bg-blue-100 px-3 py-2 rounded-lg">
+              <div className="hidden sm:flex items-center space-x-2 bg-blue-100 px-3 py-2 rounded-lg">
                 <Shield className="w-4 h-4 text-blue-600" />
                 <span className="text-sm font-medium text-blue-800">
                   {t("feedback.welcome")} {ExecutiveUsername} {ExecutiveType}
                 </span>
               </div>
-              <Button variant="outline" onClick={handleLogout} className="bg-white">
-                <LogOut className="w-4 h-4 mr-2" />
-                {t("feedback.logout")}
+              <Button variant="outline" onClick={handleLogout} className="bg-white text-xs sm:text-sm px-2 sm:px-4">
+                <LogOut className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                <span className="hidden sm:inline">{t("feedback.logout")}</span>
+                <span className="sm:hidden">Exit</span>
               </Button>
             </div>
+          </div>
+          {/* Mobile user info */}
+          <div className="sm:hidden mt-2 bg-blue-100 px-2 py-1 rounded text-xs text-blue-800">
+            {t("feedback.welcome")} {ExecutiveUsername} ({ExecutiveType})
           </div>
         </div>
       </header>
 
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8">
         <div className="max-w-4xl mx-auto">
           <Card className="shadow-xl border-0">
             <CardHeader className="bg-gradient-to-r from-green-600 to-blue-600 text-white">
-              <CardTitle className="text-2xl flex items-center">
-                <MessageSquare className="w-6 h-6 mr-3" />
+              <CardTitle className="text-lg sm:text-2xl flex items-center">
+                <MessageSquare className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3" />
                 {t("feedback.recordTitle")}
               </CardTitle>
-              <CardDescription className="text-green-100">{t("feedback.recordDesc")}</CardDescription>
+              <CardDescription className="text-green-100 text-sm">{t("feedback.recordDesc")}</CardDescription>
             </CardHeader>
-            <CardContent className="p-8">
-              <form onSubmit={handleSubmit} className="space-y-8">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <CardContent className="p-4 sm:p-8">
+              <form onSubmit={handleSubmit} className="space-y-6 sm:space-y-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                   <div className="space-y-2">
                     <Label htmlFor="callId" className="text-sm font-semibold text-gray-700">
                       {t("feedback.callId")}
@@ -187,7 +210,7 @@ export default function FeedbackPage() {
                         placeholder={t("feedback.callIdPlaceholder")}
                         value={callId}
                         onChange={(e) => setCallId(e.target.value)}
-                        className="pl-12 h-12 border-2 border-gray-200 focus:border-blue-500"
+                        className="pl-12 h-11 sm:h-12 border-2 border-gray-200 focus:border-blue-500 text-base"
                       />
                     </div>
                   </div>
@@ -204,13 +227,13 @@ export default function FeedbackPage() {
                         value={citizenMobile}
                         onChange={(e) => setCitizenMobile(e.target.value)}
                         maxLength={10}
-                        className="pl-12 h-12 border-2 border-gray-200 focus:border-blue-500"
+                        className="pl-12 h-11 sm:h-12 border-2 border-gray-200 focus:border-blue-500 text-base"
                       />
                     </div>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                   <div className="space-y-2">
                     <Label htmlFor="citizenName" className="text-sm font-semibold text-gray-700">
                       {t("feedback.citizenName")}
@@ -222,7 +245,7 @@ export default function FeedbackPage() {
                         placeholder={t("feedback.citizenNamePlaceholder")}
                         value={citizenName}
                         onChange={(e) => setCitizenName(e.target.value)}
-                        className="pl-12 h-12 border-2 border-gray-200 focus:border-blue-500"
+                        className="pl-12 h-11 sm:h-12 border-2 border-gray-200 focus:border-blue-500 text-base"
                       />
                     </div>
                   </div>
@@ -246,13 +269,15 @@ export default function FeedbackPage() {
                     Department
                   </Label>
                   <Select value={department} onValueChange={setDepartment}>
-                    <SelectTrigger className="h-12 border-2 border-gray-200 focus:border-blue-500">
+                    <SelectTrigger className="h-11 sm:h-12 border-2 border-gray-200 focus:border-blue-500 text-base">
                       <SelectValue placeholder="Select Department" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Health Department">Health Department</SelectItem>
-                      <SelectItem value="Finance Department">Finance Department</SelectItem>
-                      <SelectItem value="Tax Department">Tax Department</SelectItem>
+                      {departments.map((dept) => (
+                        <SelectItem key={dept._id} value={dept.name}>
+                          {dept.name}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
@@ -316,7 +341,7 @@ export default function FeedbackPage() {
                       placeholder={t("feedback.descriptionPlaceholder")}
                       value={description}
                       onChange={(e) => setDescription(e.target.value)}
-                      className="pl-12 min-h-[120px] border-2 border-gray-200 focus:border-blue-500"
+                      className="pl-12 min-h-[100px] sm:min-h-[120px] border-2 border-gray-200 focus:border-blue-500 text-base resize-none"
                     />
                   </div>
                 </div>
@@ -348,7 +373,7 @@ export default function FeedbackPage() {
 
                 <Button
                   type="submit"
-                  className="w-full h-14 bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white font-semibold text-lg"
+                  className="w-full h-12 sm:h-14 bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white font-semibold text-base sm:text-lg"
                   disabled={loading}
                 >
                   {loading ? t("feedback.recording") : t("feedback.recordButton")}

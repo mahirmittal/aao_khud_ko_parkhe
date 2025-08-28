@@ -164,7 +164,7 @@ export default function AdminLoginPage() {
 
                             <div className="mt-6 text-center">
                                 <p className="text-xs text-gray-500">
-                                    Administrative Access Only • For technical support: 0771-2234567
+                                    Administrative Access Only
                                 </p>
                             </div>
                         </CardContent>

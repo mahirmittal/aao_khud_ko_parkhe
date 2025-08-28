@@ -266,6 +266,8 @@ export default function AdminDashboard() {
       if (response.ok) {
         fetchUsers()
         setEditingUser(null)
+        setShowAddUser(false)
+        setNewUser({ username: "", password: "", type: "executive", active: true })
         alert("User updated successfully!")
       } else {
         const data = await response.json()
@@ -542,7 +544,7 @@ export default function AdminDashboard() {
         {activeTab === "feedback" && (
           <>
             {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-6 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-8 gap-4 mb-8">
               <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200 shadow-lg hover:shadow-xl transition-shadow">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium text-green-800">{t("admin.totalFeedbacks")}</CardTitle>
@@ -644,57 +646,6 @@ export default function AdminDashboard() {
                 <CardContent>
                   <div className="text-3xl font-bold text-red-900">{stats.pending}</div>
                   <p className="text-xs text-red-600 mt-1">Awaiting action</p>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Quick Stats Overview */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-              <Card className="bg-gradient-to-br from-blue-500 to-blue-600 text-white">
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-blue-100 text-sm">Total Feedback</p>
-                      <p className="text-2xl font-bold">{stats.total}</p>
-                    </div>
-                    <MessageSquare className="h-8 w-8 text-blue-200" />
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card className="bg-gradient-to-br from-green-500 to-green-600 text-white">
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-green-100 text-sm">Satisfied</p>
-                      <p className="text-2xl font-bold">{stats.satisfied}</p>
-                    </div>
-                    <CheckCircle className="h-8 w-8 text-green-200" />
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card className="bg-gradient-to-br from-red-500 to-red-600 text-white">
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-red-100 text-sm">Not Satisfied</p>
-                      <p className="text-2xl font-bold">{stats.notSatisfied}</p>
-                    </div>
-                    <XCircle className="h-8 w-8 text-red-200" />
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card className="bg-gradient-to-br from-yellow-500 to-yellow-600 text-white">
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-yellow-100 text-sm">Pending</p>
-                      <p className="text-2xl font-bold">{stats.pending}</p>
-                    </div>
-                    <Clock className="h-8 w-8 text-yellow-200" />
-                  </div>
                 </CardContent>
               </Card>
             </div>
@@ -1286,6 +1237,7 @@ export default function AdminDashboard() {
                         <div>
                           <p className="font-medium text-gray-900">{user.username}</p>
                           <p className="text-sm text-gray-500">Type: {user.type}</p>
+                          <p className="text-sm text-gray-600">Password: <span className="font-mono bg-gray-100 px-2 py-1 rounded">{user.password}</span></p>
                         </div>
                       </div>
                       <div className="flex items-center space-x-2">
@@ -1299,10 +1251,11 @@ export default function AdminDashboard() {
                             setEditingUser(user)
                             setNewUser({
                               username: user.username,
-                              password: "",
+                              password: user.password,
                               type: user.type,
                               active: user.active
                             })
+                            setShowAddUser(true)
                           }}
                         >
                           <Edit className="w-4 h-4" />
@@ -1321,12 +1274,18 @@ export default function AdminDashboard() {
               </CardContent>
             </Card>
 
-            {/* Add User Dialog */}
-            <Dialog open={showAddUser} onOpenChange={setShowAddUser}>
+            {/* Add/Edit User Dialog */}
+            <Dialog open={showAddUser} onOpenChange={(open) => {
+              setShowAddUser(open)
+              if (!open) {
+                setEditingUser(null)
+                setNewUser({ username: "", password: "", type: "executive", active: true })
+              }
+            }}>
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle>Add New User</DialogTitle>
-                  <DialogDescription>Create a new system user account</DialogDescription>
+                  <DialogTitle>{editingUser ? 'Edit User' : 'Add New User'}</DialogTitle>
+                  <DialogDescription>{editingUser ? 'Update user account details' : 'Create a new system user account'}</DialogDescription>
                 </DialogHeader>
                 <div className="grid gap-4 py-4">
                   <div className="grid grid-cols-4 items-center gap-4">
